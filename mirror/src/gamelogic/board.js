@@ -1,5 +1,4 @@
-import randomJS from 'random-js';
-    /**
+/**
      *
      * @param position
      * @param direction
@@ -32,22 +31,20 @@ import randomJS from 'random-js';
         };
 
     const canMoveObject = (state, position, direction) => {
-        const newPosition = this.directionPosition(position, direction);
-        return positionExists(state, newPosition) && positionIsEmpty(state, newPosition);
+        const newPosition = directionPosition(position, direction);
+        return positionExists(state.board, newPosition) && positionIsEmpty(state, newPosition);
     };
 
     const moveObject = (state, object, direction) =>  {
-        const position = findPositionOfObject(state, object);
-        return moveObjectFromPosition(state, position, direction);
-     };
-
-    const moveObjectFromPosition = (state, position, direction) => {
-        if (this.canMoveObject(position, direction)) {
-            const newPosition = this.directionPosition(position, direction);
-            return placeObject(removeObject(position), newPosition, object);
+        const position = object.position;
+        console.log(position);
+        if (canMoveObject(state, position, direction)) {
+            const newPosition = directionPosition(position, direction);
+            console.log({newPosition});
+            return placeObject(removeObject(state, object), newPosition, object);
         }
         return state;
-    };
+     };
 
     const positionIsEmpty = (state, position) =>  {
         return !findObjectByPosition(state, position);
@@ -68,26 +65,28 @@ import randomJS from 'random-js';
         return undefined;
     };
 
-    const findFreeSpot = (state, rng) => {
-        const taken = Object.keys(state.objects).map(object => {
+    const findFreeSpot = (state) => {
+        const sizeX = state.board.sizeX;
+        const sizeY = state.board.sizeY;
+        const taken = Object.keys(state.objects).map(key => {
+            const object = state.objects[key];
             const position = object.position;
-            return position.x * state.sizeX + position.y;
+            return position.x * sizeX + position.y;
         });
-        // FIXME make a seeded function, now it is random over mirror servers
-        const aim = Math.floor(Math.random * state.sizeX * state.sizeY - taken.length);
-        const spots = Array(sizeX * sizeY).map((x,i) => i).filter(value => !taken.includes(value));
+        // Math.random has been altered to use a seed in the main
+        const aim = Math.ceil(Math.random() * (sizeX * sizeY - (taken.length + 1)));
+        const spots = Array(sizeX * sizeY).fill(0).map((x,i) => i).filter(value => !taken.includes(value));
         const found = spots[aim];
         // convert one number back to two numbers in position
-        return {x: (found - (found % state.sizeX))/ state.sizeX, y: found % state.sizeX};
+        return {x: found % sizeX, y: Math.floor(found/ sizeX)};
     };
 
    const placeObject = (state, position, object) =>  {
-        if(this.positionExists(state.board, position) && this.positionIsEmpty(state.board, position)) {
+        if(positionExists(state.board, position) && positionIsEmpty(state, position)) {
             if(state.objects[object.id]) {
                 // TODO log id already exists
             } else {
-                state.objects[object.id] = {...object, position};
-                return {...state, objects: {...state.objects, [object.id]: object}}
+                return {...state, objects: {...state.objects, [object.id]: {...object, position}}}
             }
         }
         return state;
@@ -108,4 +107,4 @@ import randomJS from 'random-js';
             return state;
     };
 
-    export default {placeObject, removeObject, moveObject, findFreeSpot};
+ module.exports =  {placeObject, removeObject, moveObject, findFreeSpot};

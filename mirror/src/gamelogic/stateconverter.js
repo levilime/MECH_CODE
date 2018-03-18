@@ -1,10 +1,4 @@
 import board from './board';
-import randomJS from 'random-js';
-
-// TODO get seed from main.js and initial invocation instead
-const seed = 213534;
-const rng = randomJS.engines.mt19937(seed);
-
 
 /**
  * state is composed of
@@ -66,9 +60,15 @@ const converters =
                         health: 20,
                         ap: 10
                     };
-                board.placeObject(state, board.findFreeSpot(state), object);
+                return board.placeObject(state, board.findFreeSpot(state), object);
             } else if (action.objectType === monster) {
-
+                const object =
+                    // TODO don't hardcode this here
+                    {
+                        health: 100,
+                        ap: 20
+                    };
+                return board.placeObject(state, board.findFreeSpot(state), object);
             }
 
         },
