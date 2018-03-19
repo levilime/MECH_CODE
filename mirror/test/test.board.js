@@ -119,7 +119,7 @@ describe('Board logic', function() {
     describe('heal', function() {
         it('should heal another player', function() {
             const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
-            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0, health: 80, ap:20}};
+            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0}, health: 80, ap:20};
             const state = {
                 board : {
                     sizeX: 2,
@@ -128,10 +128,10 @@ describe('Board logic', function() {
                 objects: {[player.id] :player, [player2.id]: player2},
                 seed: 6
             };
-            const position = board.heal(state, player, player2);
+            const nextState = board.heal(state, player, player2);
             const newState = Object.assign({}, state);
-            newState.objects.player2.health = 80 + 20;
-            assert.deepEqual(state, newState);
+            newState.objects.player2.health = state.objects.player2.health + state.objects.player1.ap;
+            assert.deepEqual(nextState, newState);
         });
     });
 });
