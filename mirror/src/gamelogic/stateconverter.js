@@ -24,7 +24,7 @@ const player = "player";
 const monster = "monster";
 
 const attackDistance = 2;
-const healDistance = 1;
+const healDistance = 5;
 
 /**
  *  game logic provides a function which consumes a state and a action and returns a
@@ -57,10 +57,9 @@ const converters =
         },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
-            const victim = board.findClosestObject(attacker, (object) => object.type === monster);
+            const victim = board.findClosestObject(attacker, (object) => object.type === !attacker.type);
             return victim && board.distanceBetweenObjects(attacker, victim) <= attackDistance
                 ? board.attack(state, attacker, victim): state;
-
         },
         "HEAL": (state, action) => {
             const healer = state.objects[action.identifier];

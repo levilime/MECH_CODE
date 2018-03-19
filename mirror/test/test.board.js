@@ -84,7 +84,7 @@ describe('Board logic', function() {
     describe('attack', function() {
         it('should attack a monster', function() {
             const player = {id: "player", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
-            const monster = {id: "monster", type: "monster", position: {x: 1, y: 0, health: 80, ap:20}};
+            const monster = {id: "monster", type: "monster", position: {x: 1, y: 0}, health: 100, ap:20};
             const state = {
                 board : {
                     sizeX: 2,
@@ -93,11 +93,28 @@ describe('Board logic', function() {
                 objects: {[player.id] :player, [monster.id]: monster},
                 seed: 6
             };
-            const position = board.attack(state, player, monster);
+            const nextState = board.attack(state, player, monster);
             const newState = Object.assign({}, state);
-            newState.objects.monster.health = 200 - 20;
-            assert.deepEqual(state, newState);
+            newState.objects.monster.health = state.objects.monster.health - state.objects.player.ap;
+            assert.deepEqual(nextState, newState);
         });
+        it('should attack a player', function() {
+            const player = {id: "player", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const monster = {id: "monster", type: "monster", position: {x: 1, y: 0}, health: 100, ap:20};
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [monster.id]: monster},
+                seed: 6
+            };
+            const nextState = board.attack(state, monster, player);
+            const newState = Object.assign({}, state);
+            newState.objects.player.health = state.objects.player.health - state.objects.monster.ap;
+            assert.deepEqual(nextState, newState);
+        });
+
     });
     describe('heal', function() {
         it('should heal another player', function() {

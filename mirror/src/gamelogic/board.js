@@ -86,14 +86,17 @@
     const findFreeSpot = (state) => {
         const sizeX = state.board.sizeX;
         const sizeY = state.board.sizeY;
+        // taken is a list of all taken spots written as one number
         const taken = Object.keys(state.objects).map(key => {
             const object = state.objects[key];
             const position = object.position;
             return position.x * sizeX + position.y;
         });
-        // Math.random has been altered to use a seed in the main
+        // take a permitted random location
         const aim = Math.ceil(Math.random() * (sizeX * sizeY - (taken.length + 1)));
+        // find all free spots
         const spots = Array(sizeX * sizeY).fill(0).map((x,i) => i).filter(value => !taken.includes(value));
+        // take the one that was chosen by the rng
         const found = spots[aim];
         // convert one number back to two numbers in position
         return {x: found % sizeX, y: Math.floor(found/ sizeX)};
