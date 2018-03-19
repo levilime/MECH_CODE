@@ -58,6 +58,27 @@
         return objects.length ? objects[0] : undefined;
     };
 
+    const findClosestObject = (state, object, additionalCheck) => {
+        state.objects.reduce((closest, current) => {
+            if(!closest) {
+                return additionalCheck ? (additionalCheck(current) ? current: undefined): current;
+            } else {
+                return 
+                additionalCheck ? (additionalCheck(current) ? true: false): true
+                &&
+                distanceBetweenObjects(current, object)
+                 < distanceBetweenObjects(closest, object)
+                  &&
+                  distanceBetweenObjects(current, object) > 0
+                     ? current : closest;
+            }
+        }, undefined)
+    }
+
+    const distanceBetweenObjects = (a, b) => {
+        return Math.abs(a.position.x - b.position.x) + Math.abs(a.position.y - b.position.y);
+    }
+
     const findPositionOfObject = (state, object) => {
         if (state.objects[object.id]) {
             return state.objects[object.id].position;
@@ -107,4 +128,20 @@
             return state;
     };
 
- module.exports =  {placeObject, removeObject, moveObject, findFreeSpot};
+    const attack = (state, attacker, victim) => {
+        const newHealth = victim.health - attacker.ap;
+        const newVictim = {...victim, health: newHealth};
+        if(newHealth < 0) {
+            return removeObject(state, victim);
+        }
+        return {...state, objects: {...state.objects, [victim.id]: newVictim}};
+    }
+
+    const heal = (state, healer, patient) => {
+        // FIXME save max health otherwise patient can get infinitely strong, which is stupid
+        const newHealth = patient.health + healer.ap;
+        const newPatient = {...patient, health: newHealth};
+        return {...state, objects: {...state.objects, [patient.id]: newPatient}};
+    }
+
+ module.exports =  {placeObject, removeObject, moveObject, findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};

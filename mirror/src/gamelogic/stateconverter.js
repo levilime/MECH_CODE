@@ -1,4 +1,5 @@
 import board from './board';
+import createObject from './createobject';
 
 /**
  * state is composed of
@@ -37,7 +38,6 @@ export default (state, action) => {
         // TODO log unknown action
         return state;
     }
-
     return converters[action.type](state, action);
 }
 
@@ -52,30 +52,20 @@ const converters =
             }
         },
         "SPAWN": (state, action) => {
-            if (action.objectType === player) {
-                // just positions the player somewhere
-                const object =
-                    // TODO don't hardcode this here
-                    {
-                        health: 20,
-                        ap: 10
-                    };
-                return board.placeObject(state, board.findFreeSpot(state), object);
-            } else if (action.objectType === monster) {
-                const object =
-                    // TODO don't hardcode this here
-                    {
-                        health: 100,
-                        ap: 20
-                    };
-                return board.placeObject(state, board.findFreeSpot(state), object);
-            }
-
+            const newObject = createObject(action.objectType);
+            return newObject ? board.placeObject(state, board.findFreeSpot(state), newObject): state;
         },
         "ATTACK": (state, action) => {
+            const attacker = state.objects[action.identifier];
+            const victim = board.findClosestObject(attacker, (object) => object.type === monster);
+            return victim && board.distanceBetweenObjects(attacker, victim) < 3 
+                ? board.attack(state, attacker, victim): state;
 
         },
         "HEAL": (state, action) => {
-
+            const healer = state.objects[action.identifier];
+            const patient = board.findClosestObject(healer, (object) => object.type === player);
+            return patient && board.distanceBetweenObjects(healer, patient) < 2
+                ? board.heal(state, healer, patient): state;
         }
     };

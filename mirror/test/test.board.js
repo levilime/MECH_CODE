@@ -81,6 +81,40 @@ describe('Board logic', function() {
             assert.deepEqual(position, {x: 1, y: 1});
         });
     });
+    describe('attack', function() {
+        it('should attack a monster', function() {
+            const player = {id: "player", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const monster = {id: "monster", type: "monster", position: {x: 1, y: 0, health: 80, ap:20}};
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [monster.id]: monster},
+                seed: 6
+            };
+            const position = board.attack(state, player, monster);
+            const newState = Object.assign({}, state);
+            newState.objects.monster.health = 200 - 20;
+            assert.deepEqual(state, newState);
+        });
+    });
+    describe('heal', function() {
+        it('should heal another player', function() {
+            const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0, health: 80, ap:20}};
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [player2.id]: player2},
+                seed: 6
+            };
+            const position = board.heal(state, player, player2);
+            const newState = Object.assign({}, state);
+            newState.objects.player2.health = 80 + 20;
+            assert.deepEqual(state, newState);
+        });
+    });
 });
-
-
