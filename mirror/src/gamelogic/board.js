@@ -37,10 +37,8 @@
 
     const moveObject = (state, object, direction) =>  {
         const position = object.position;
-        console.log(position);
         if (canMoveObject(state, position, direction)) {
             const newPosition = directionPosition(position, direction);
-            console.log({newPosition});
             return placeObject(removeObject(state, object), newPosition, object);
         }
         return state;
@@ -63,8 +61,7 @@
             if(!closest) {
                 return additionalCheck ? (additionalCheck(current) ? current: undefined): current;
             } else {
-                return 
-                additionalCheck ? (additionalCheck(current) ? true: false): true
+                return (additionalCheck ? !!additionalCheck(current): true)
                 &&
                 distanceBetweenObjects(current, object)
                  < distanceBetweenObjects(closest, object)
@@ -135,13 +132,13 @@
             return removeObject(state, victim);
         }
         return {...state, objects: {...state.objects, [victim.id]: newVictim}};
-    }
+    };
 
     const heal = (state, healer, patient) => {
         // FIXME save max health otherwise patient can get infinitely strong, which is stupid
         const newHealth = patient.health + healer.ap;
         const newPatient = {...patient, health: newHealth};
         return {...state, objects: {...state.objects, [patient.id]: newPatient}};
-    }
+    };
 
  module.exports =  {placeObject, removeObject, moveObject, findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};

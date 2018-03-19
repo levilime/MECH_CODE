@@ -1,30 +1,30 @@
-import board from './board';
-import createObject from './createobject';
+const board = require('./board');
+const createObject = require('./createobject');
 
 /**
  * state is composed of
- *
  * {
  *      objects: all the objects on the board, with as key the identifier,
  *      board: the properties of the board, {sizeX: number, sizeY: number},
  *      seed: the seed for pseudo random generation of numbers
  * }
- *
  */
 
 /**
  * action is composed of:
  * {
  *      type: type of action,
- *      objectType: type of object(player, monster) that requested the action,
  *      identifier: identifies the object,
  *      data: data of the action, for movement gives the direction, for attack and
- *          heal it is empty
+ *          heal it is empty and objectType: type of object(player, monster) that requested the action,
  * }
  */
 
 const player = "player";
 const monster = "monster";
+
+const attackDistance = 2;
+const healDistance = 1;
 
 /**
  *  game logic provides a function which consumes a state and a action and returns a
@@ -33,39 +33,39 @@ const monster = "monster";
  * @param action
  * @returns {*}
  */
-export default (state, action) => {
+module.exports = (state, action) => {
     if (!converters[action.type]) {
         // TODO log unknown action
         return state;
     }
     return converters[action.type](state, action);
-}
+};
 
 const converters =
     {
         "MOVE": (state, action) => {
-            if(action.objectType === player) {
-                return board.moveObject(state, action.identifier, action.data.direction);
+            if(action.data.objectType === player) {
+                return board.moveObject(state, state.objects[action.identifier], action.data.direction);
             } else {
                 // TODO log action cannot be performed by this action.objectType
                 return state;
             }
         },
         "SPAWN": (state, action) => {
-            const newObject = createObject(action.objectType);
+            const newObject = createObject(action.data.objectType, action.identifier);
             return newObject ? board.placeObject(state, board.findFreeSpot(state), newObject): state;
         },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
             const victim = board.findClosestObject(attacker, (object) => object.type === monster);
-            return victim && board.distanceBetweenObjects(attacker, victim) < 3 
+            return victim && board.distanceBetweenObjects(attacker, victim) <= attackDistance
                 ? board.attack(state, attacker, victim): state;
 
         },
         "HEAL": (state, action) => {
             const healer = state.objects[action.identifier];
             const patient = board.findClosestObject(healer, (object) => object.type === player);
-            return patient && board.distanceBetweenObjects(healer, patient) < 2
+            return patient && board.distanceBetweenObjects(healer, patient) <= healDistance
                 ? board.heal(state, healer, patient): state;
         }
     };
