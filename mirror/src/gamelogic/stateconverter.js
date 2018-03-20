@@ -57,7 +57,7 @@ const converters =
         },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
-            const victim = board.findClosestObject(state, attacker, (object) => object.type === !attacker.type);
+            const victim = board.findClosestObject(state, attacker, (object) => object.type !== attacker.type);
             return victim && board.distanceBetweenObjects(attacker, victim) <= attackDistance
                 ? board.attack(state, attacker, victim): state;
         },
