@@ -22,4 +22,4 @@ const objects = {
         health: monsterBaseHealth +  Math.round(Math.random() * monsterVariableHealth),
         ap: monsterBaseAP + Math.round(Math.random() * monsterVariableAP)
     };}
-}
+};
