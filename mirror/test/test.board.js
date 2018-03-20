@@ -61,7 +61,7 @@ describe('Board logic', function() {
                 seed: 6
             };
             seedrandom(state.seed, {global: true});
-            const position = board.findFreeSpot(state);
+            const position = board.findFreeSpot(state, Math.random);
             assert.deepEqual(position, {x: 1, y: 0});
         });
         it('should find a free position', function() {
@@ -77,7 +77,7 @@ describe('Board logic', function() {
                 seed: 6
             };
             seedrandom(state.seed, {global: true});
-            const position = board.findFreeSpot(state);
+            const position = board.findFreeSpot(state, Math.random);
             assert.deepEqual(position, {x: 1, y: 1});
         });
     });
