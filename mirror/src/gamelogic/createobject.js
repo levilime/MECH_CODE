@@ -6,7 +6,7 @@ const playerBaseHealth = 10;
 const playerVariableHealth = 10;
 const playerVariableAP = 10;
 const monsterBaseHealth = 50;
-const monsterVariableHealth = monsterBaseHealth;
+const monsterVariableHealth = 50;
 const monsterBaseAP = 5;
 const monsterVariableAP = 15;
 

@@ -1,5 +1,4 @@
 /**
-     *
      * @param position
      * @param direction
      *
@@ -145,4 +144,6 @@
         return {...state, objects: {...state.objects, [patient.id]: newPatient}};
     };
 
- module.exports =  {placeObject, removeObject, moveObject, findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+ module.exports =  {placeObject, removeObject, moveObject,
+    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+    
