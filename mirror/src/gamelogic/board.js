@@ -57,7 +57,8 @@
     };
 
     const findClosestObject = (state, object, additionalCheck) => {
-        state.objects.reduce((closest, current) => {
+        Object.keys(state.objects).reduce((closest, currentKey) => {
+            const current = state.objects[currentKey];
             if(!closest) {
                 return additionalCheck ? (additionalCheck(current) ? current: undefined): current;
             } else {
