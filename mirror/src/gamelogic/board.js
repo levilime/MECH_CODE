@@ -1,5 +1,4 @@
 /**
-     *
      * @param position
      * @param direction
      *
@@ -57,7 +56,8 @@
     };
 
     const findClosestObject = (state, object, additionalCheck) => {
-        state.objects.reduce((closest, current) => {
+        Object.keys(state.objects).reduce((closest, currentKey) => {
+            const current = state.objects[currentKey];
             if(!closest) {
                 return additionalCheck ? (additionalCheck(current) ? current: undefined): current;
             } else {
@@ -144,4 +144,6 @@
         return {...state, objects: {...state.objects, [patient.id]: newPatient}};
     };
 
- module.exports =  {placeObject, removeObject, moveObject, findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+ module.exports =  {placeObject, removeObject, moveObject,
+    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+    

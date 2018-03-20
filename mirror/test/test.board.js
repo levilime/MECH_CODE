@@ -82,7 +82,7 @@ describe('Board logic', function() {
         });
     });
     describe('attack', function() {
-        it('should attack a monster', function() {
+        it('attack function handles the attacking between two objects', function() {
             const player = {id: "player", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
             const monster = {id: "monster", type: "monster", position: {x: 1, y: 0}, health: 100, ap:20};
             const state = {
@@ -98,26 +98,9 @@ describe('Board logic', function() {
             newState.objects.monster.health = state.objects.monster.health - state.objects.player.ap;
             assert.deepEqual(nextState, newState);
         });
-        it('should attack a player', function() {
-            const player = {id: "player", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
-            const monster = {id: "monster", type: "monster", position: {x: 1, y: 0}, health: 100, ap:20};
-            const state = {
-                board : {
-                    sizeX: 2,
-                    sizeY: 1
-                },
-                objects: {[player.id] :player, [monster.id]: monster},
-                seed: 6
-            };
-            const nextState = board.attack(state, monster, player);
-            const newState = Object.assign({}, state);
-            newState.objects.player.health = state.objects.player.health - state.objects.monster.ap;
-            assert.deepEqual(nextState, newState);
-        });
-
     });
     describe('heal', function() {
-        it('should heal another player', function() {
+        it('heal function handles the healing between two objects', function() {
             const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
             const player2 = {id: "player2", type: "player", position: {x: 1, y: 0}, health: 80, ap:20};
             const state = {

@@ -57,14 +57,15 @@ const converters =
         },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
-            const victim = board.findClosestObject(attacker, (object) => object.type === !attacker.type);
+            const victim = board.findClosestObject(state, attacker, (object) => object.type === !attacker.type);
             return victim && board.distanceBetweenObjects(attacker, victim) <= attackDistance
                 ? board.attack(state, attacker, victim): state;
         },
         "HEAL": (state, action) => {
             const healer = state.objects[action.identifier];
-            const patient = board.findClosestObject(healer, (object) => object.type === player);
+            const patient = board.findClosestObject(state, healer, (object) => object.type === player);
             return patient && board.distanceBetweenObjects(healer, patient) <= healDistance
                 ? board.heal(state, healer, patient): state;
         }
     };
+    
