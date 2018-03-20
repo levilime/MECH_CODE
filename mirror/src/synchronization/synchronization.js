@@ -5,7 +5,6 @@ const t_states = require('./trailingstate');
 
 //Get/set leading and trailing states, rollback, check inconsistencies
 //Current Execution Time for trailing state = simulation/current time - delay
-//Action = {id, action, timestamp, effect}, state = {state, actions, delay}
 class Synchronization {
 
     constructor(sizeX, sizeY, seed, numStates, syncDelay) {
@@ -72,7 +71,6 @@ class Synchronization {
         let consistent = true;
         for (let i = this.states.length - 1; i > 0; i--) {
             this.states[i].executedActions.forEach((executedAction) => {
-                //TODO comparison of effect (changed state) maybe different
                 const actionComparison = this.states[i - 1].executedActions.find((x) => {
                     return x.action.identifier === executedAction.action.identifier && x.effect === executedAction.effect;
                 });

@@ -1,5 +1,6 @@
 const assert = require('assert');
 const seedrandom = require('seedrandom');
+const hash = require('object-hash');
 
 const sync = require('../src/synchronization/synchronization');
 
@@ -36,7 +37,6 @@ describe('Trailing State Synchronization', function() {
         it('should execute actions in all trailing states', function() {
             const synchronization = new sync.Synchronization(1,1,6,2,10);
             const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
-            seedrandom(synchronization.states[0].seed, {global: true});
             synchronization.addAction(15, action);
 
             assert.equal(synchronization.states[0].actions.length, 1);
@@ -49,19 +49,56 @@ describe('Trailing State Synchronization', function() {
         });
     });
 
+    describe('One Trailing State Execute action', function() {
+        it('should let only one trailing state execute action', function() {
+            const synchronization = new sync.Synchronization(1,1,6,2,10);
+            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
+            synchronization.addAction(15, action);
+
+            assert.equal(synchronization.states[0].actions.length, 1);
+            assert.equal(synchronization.states[1].actions.length, 1);
+            assert.equal(synchronization.execute(16), true);
+            assert.equal(synchronization.states[0].actions.length, 0);
+            assert.equal(synchronization.states[1].actions.length, 1);
+            assert.equal(synchronization.states[0].executedActions.length, 1);
+        });
+    });
+
     describe('Execute actions with Rollback', function() {
         it('should execute actions in all trailing states', function() {
             const synchronization = new sync.Synchronization(1,1,6,2,10);
             const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
-            seedrandom(synchronization.states[0].seed, {global: true});
             synchronization.addAction(15, action);
             synchronization.execute(16);
-            synchronization.states[1].state.objects.push({id: "player1", position:{x:0, y:0}});
+            synchronization.states[0].state.objects['player1'].position = {x:-1, y:-1};
+            synchronization.states[0].executedActions[0].effect = hash(synchronization.states[0].state);
 
             assert.equal(synchronization.states[1].actions.length, 1);
             assert.equal(synchronization.execute(25), false);
             assert.equal(synchronization.states[1].actions.length, 0);
             assert.equal(synchronization.states[1].executedActions.length, 0);
+            const actualPos = synchronization.states[0].state.objects['player1'].position;
+            const truePos = synchronization.states[1].state.objects['player1'].position;
+            assert.equal(actualPos.x, truePos.x);
+            assert.equal(actualPos.y, truePos.y);
+        });
+    });
+
+    describe('Execute actions after Rollback', function() {
+        it('should execute actions in all trailing states', function() {
+            const synchronization = new sync.Synchronization(2,2,6,2,10);
+            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
+            synchronization.addAction(15, action);
+            synchronization.execute(16);
+            synchronization.states[0].state.objects['player1'].position = {x:-1, y:-1};
+            synchronization.states[0].executedActions[0].effect = hash(synchronization.states[0].state);
+            synchronization.execute(25);
+
+            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 10};
+            synchronization.addAction(26, action2);
+            assert.equal(synchronization.execute(27), true);
+            assert.equal(Object.keys(synchronization.states[0].state.objects).length, 2);
+            assert.equal(Object.keys(synchronization.states[1].state.objects).length, 1);
         });
     });
 });

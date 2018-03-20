@@ -1,5 +1,6 @@
 //Trailing State Class
 const stateconverter = require('../gamelogic/stateconverter');
+const seedrandom = require('seedrandom');
 const hash = require('object-hash');
 
 class TrailingState {
@@ -47,7 +48,8 @@ class TrailingState {
             const executedAction = this.actions.shift();
             //TODO Execute currentAction on current state and assign effect (changed state) to action
             // set to null if no effect
-            this.state = stateconverter(this.state, executedAction);
+            const rng = seedrandom(this.state.seed);
+            this.state = stateconverter(this.state, executedAction, rng);
             this.executedActions.push({action:executedAction, effect:hash(this.state)});
         }
     }
