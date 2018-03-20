@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - "node"
+
+cache:
+  directories:
+    - "mirror/node_modules"
+
+install:
+- cd "mirror"
+- npm install
+- cd ".."
+
+script: 
+- cd "mirror"
+- npm test
