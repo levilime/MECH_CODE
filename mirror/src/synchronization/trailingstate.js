@@ -6,7 +6,8 @@ const hash = require('object-hash');
 class TrailingState {
 
     constructor(sizeX, sizeY, seed, delay) {
-        this.state = new State(sizeX, sizeY, seed);
+        const rng = seedrandom(seed);
+        this.state = {board: {sizeX, sizeY}, seed: rng, objects: {}};
         this.executedActions = [];
         this.actions = [];
         this.delay = delay;
@@ -44,12 +45,9 @@ class TrailingState {
      * @param currentTime
      */
     executeActions(currentTime) {
-        while (this.actions.length > 0 && currentTime - this.delay > this.actions[0].timestamp) {
+        while (this.actions.length > 0 && currentTime - this.delay >= this.actions[0].timestamp) {
             const executedAction = this.actions.shift();
-            //TODO Execute currentAction on current state and assign effect (changed state) to action
-            // set to null if no effect
-            const rng = seedrandom(this.state.seed);
-            this.state = stateconverter(this.state, executedAction, rng);
+            this.state = stateconverter(this.state, executedAction, this.state.seed);
             this.executedActions.push({action:executedAction, effect:hash(this.state)});
         }
     }
@@ -63,16 +61,15 @@ class TrailingState {
         const idList = executedActionsList.map((a) => a.action.identifier);
         this.executedActions = this.executedActions.filter((action) => idList.indexOf(action.action.identifier) === -1);
     }
-}
 
-class State {
-
-    constructor(sizeX, sizeY, seed) {
-        this.seed = seed;
-        this.objects = [];
-        this.board = {sizeX:sizeX, sizeY:sizeY};
+    /**
+     * Method to copy the state of the trailing state
+     * @returns {{board: {sizeX: *, sizeY: *}, seed: *, objects}}
+     */
+    cloneState() {
+        return {board:this.state.board, seed: this.state.seed,
+            objects: JSON.parse(JSON.stringify(this.state.objects))};
     }
-
 }
 
-module.exports = {TrailingState, State};
+module.exports = {TrailingState};

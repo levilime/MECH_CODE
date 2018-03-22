@@ -92,9 +92,10 @@ class Synchronization {
      */
     rollback(currentTime, copyStateIndex, rollbackStateIndex) {
         const copyState = this.states[copyStateIndex];
-        this.states[rollbackStateIndex].actions = copyState.actions.map(x=>x);
-        this.states[rollbackStateIndex].executedActions = copyState.executedActions.map(x=>x);
-        this.states[rollbackStateIndex].state = JSON.parse(JSON.stringify(copyState.state));
+        this.states[rollbackStateIndex].actions = [...copyState.actions];
+        this.states[rollbackStateIndex].executedActions = [...copyState.executedActions];
+        this.states[rollbackStateIndex].state = copyState.cloneState();
+
         //Catching up with the actions
         this.states[rollbackStateIndex].executeActions(currentTime);
     };
