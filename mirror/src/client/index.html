@@ -13,7 +13,7 @@
 </style>
 
 <script>
-    var playerIdentifier = undefined;
+    let playerIdentifier = undefined;
     const redrawBattleFieldFromState = (state) => {
         const id = "test";
         const battleField = new Array(state.sizeX).fill(Array(state.sizeY).fill(drawObject("empty")));
@@ -79,7 +79,8 @@
                 "s": {type: "MOVE", identifier: playerIdentifier, data: {direction: "down"}},
                 "a": {type: "MOVE", identifier: playerIdentifier, data: {direction: "left"}},
                 "d": {type: "MOVE", identifier: playerIdentifier, data: {direction: "right"}},
-
+                "z": {type: "ATTACK", identifier: playerIdentifier, data: {}},
+                "x": {type: "HEAL", identifier: playerIdentifier, data: {}},
             };
 
             if (actionLibrary[keyName]) {
