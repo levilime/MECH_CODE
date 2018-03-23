@@ -19,7 +19,7 @@
         const battleField = new Array(state.sizeX).fill(Array(state.sizeY).fill(drawObject("empty")));
         Object.keys(state.objects).forEach(objectKey => {
             const object = state.objects[objectKey];
-            battleField[object.position.x][object.position.y] = drawObject(object.id === id ? "id": "player");
+            battleField[object.position.x][object.position.y] = drawObject(object.id === playerIdentifier ? "id": "player");
         });
         const battleFieldDom = document.getElementById("battlefield");
         battleFieldDom.innerHTML = "";
