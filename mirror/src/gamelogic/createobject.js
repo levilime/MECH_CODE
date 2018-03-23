@@ -1,5 +1,5 @@
-module.exports =  (type, identifier) => {
-    return objects[type] ? objects[type](identifier) : undefined;
+module.exports =  (type, identifier, rng) => {
+    return objects[type] ? objects[type](identifier, rng) : undefined;
 };
 
 const playerBaseHealth = 10;
@@ -12,14 +12,14 @@ const monsterVariableAP = 15;
 
 // TODO add some randomization logic for health and ap
 const objects = {
-    player: (identifier) => {return                     {
+    player: (identifier, rng) => {return                     {
         id: identifier,
-        health: playerBaseHealth + Math.round(Math.random() * playerVariableHealth),
-        ap: Math.ceil(Math.random() * playerVariableAP)
+        health: playerBaseHealth + Math.round(rng() * playerVariableHealth),
+        ap: Math.ceil(rng() * playerVariableAP)
     };},
-    monster: (identifier) => {return                     {
+    monster: (identifier, rng) => {return                     {
         id: identifier,
-        health: monsterBaseHealth +  Math.round(Math.random() * monsterVariableHealth),
-        ap: monsterBaseAP + Math.round(Math.random() * monsterVariableAP)
+        health: monsterBaseHealth +  Math.round(rng() * monsterVariableHealth),
+        ap: monsterBaseAP + Math.round(rng() * monsterVariableAP)
     };}
 };
