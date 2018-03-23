@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+    <title>MECH_CODE</title>
+</head>
+<style>
+    #battlefield {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        list-style-type:none;
+    }
+</style>
+
+<script>
+    let playerIdentifier = undefined;
+    const redrawBattleFieldFromState = (state) => {
+        const id = "test";
+        const battleField = new Array(state.sizeX).fill(Array(state.sizeY).fill(drawObject("empty")));
+        Object.keys(state.objects).forEach(objectKey => {
+            const object = state.objects[objectKey];
+            battleField[object.position.x][object.position.y] = drawObject(object.id === playerIdentifier ? "id": "player");
+        });
+        const battleFieldDom = document.getElementById("battlefield");
+        battleFieldDom.innerHTML = "";
+        battleField.forEach(yarray => {
+            const text = yarray.join(drawObject("space"));
+            const li = document.createElement("LI");
+            li.innerText = text;
+            battleFieldDom.appendChild(li);
+        })
+    };
+
+    const drawObject = (type) => {
+        const drawLibrary = {
+            "empty": "*",
+            "id": "U", 
+            "player": "M",
+            "monster": "D",
+            "space": " "
+        };
+        if (drawLibrary[type]) {
+            return drawLibrary[type];
+        } else {
+            return "?";
+        }
+    };
+
+    const socketInitialization = () => {
+        const socket = io();
+        console.log(socket);
+        // tells the player the current state
+        socket.on('state', function(msg){
+            console.log(msg);
+            redrawBattleFieldFromState(msg.state);
+        });
+        // tells the player his id
+        // FIXME unwanted like this, need to be extended with security so a player cannot pretend to be
+        // another player
+        socket.on('id', function(msg){
+            console.log(msg);
+            playerIdentifier = msg.id;
+            actionPropagator(socket);
+        });
+    };
+
+    window.onload = () => {
+        // redrawBattleFieldFromState({sizeX: 25, sizeY: 25, objects:{}});
+        socketInitialization();
+    };
+
+    // controls
+    const actionPropagator = (socket) => {
+        document.addEventListener('keypress', (event) => {
+            const keyName = event.key;
+
+            const actionLibrary = {
+                "w": {type: "MOVE", identifier: playerIdentifier, data: {direction: "up"}},
+                "s": {type: "MOVE", identifier: playerIdentifier, data: {direction: "down"}},
+                "a": {type: "MOVE", identifier: playerIdentifier, data: {direction: "left"}},
+                "d": {type: "MOVE", identifier: playerIdentifier, data: {direction: "right"}},
+                "z": {type: "ATTACK", identifier: playerIdentifier, data: {}},
+                "x": {type: "HEAL", identifier: playerIdentifier, data: {}},
+            };
+
+            if (actionLibrary[keyName]) {
+                socket.emit('action', actionLibrary[keyName])
+            } else {
+                alert('UNKNOWN KEY PRESS\n\n' + 'key: ' + keyName);
+            }
+        });
+    }
+
+</script>
+
+<body>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<ul id="battlefield">
+</ul>
+</body>
+</html>
