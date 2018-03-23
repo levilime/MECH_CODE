@@ -1,6 +1,13 @@
+const logger = require('../log/logger').instantiatedLogger;
+
 module.exports =
     class ClientCommunicator {
 
+        /**
+         * Initializes the ClientCommunicator
+         * @param actionListener
+         * @return {function(*=)}
+         */
         constructor (actionListener) {
             const app = require('express')();
             const http = require('http').Server(app);
@@ -16,7 +23,7 @@ module.exports =
             });
 
             io.on('connection', function(socket){
-                console.log("new connection");
+                logger.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
                 actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
                 // send the id to the client so it knows about it

@@ -1,5 +1,6 @@
 const board = require('./board');
 const createObject = require('./createobject');
+const logger = require('../log/logger').instantiatedLogger;
 
 /**
  * state is composed of
@@ -35,7 +36,7 @@ const healDistance = 5;
  */
 module.exports = (state, action, rng) => {
     if (!converters[action.type]) {
-        // TODO log unknown action
+        logger.push('action', 'action: ' + action.type + ' does not exist');
         return state;
     }
     return converters[action.type](state, action, rng);
@@ -47,6 +48,7 @@ const converters =
             if(action.data.objectType === player) {
                 return board.moveObject(state, state.objects[action.identifier], action.data.direction);
             } else {
+                logger.push('action', 'action: ' + action.type + ' cannot be performed by: ' + action.data.objectType);
                 // TODO log action cannot be performed by this action.objectType
                 return state;
             }

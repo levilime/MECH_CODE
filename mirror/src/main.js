@@ -1,6 +1,9 @@
 const ClientCommunicator = require('./client/clientcommunicator');
+const Logger = require('./log/logger').Logger;
+const logger = require('./log/logger').instantiatedLogger;
 
 const initialize = (state) =>  {
+    // new Logger();
 
     // Initialize the trailing state with the
 
@@ -8,7 +11,7 @@ const initialize = (state) =>  {
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
 
-        console.log("Action received:", action);
+        logger.push('action', 'received action: ' + JSON.stringify(action));
 
         // TODO put here the multicast functionality to feed the data to all mirror servers
     });
