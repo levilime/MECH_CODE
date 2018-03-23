@@ -16,11 +16,14 @@ module.exports =
             });
 
             io.on('connection', function(socket){
+                console.log("new connection");
                 // create action when client (dis)connects
-                // actionListener(msg);
-                socket.on('chat message', function(msg){
-                    io.emit('chat message', msg);
-                });
+                actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
+                // send the id to the client so it knows about it
+                socket.emit('id', {id: socket.id});
+                // FIXME this emitting can be removed because state is just
+                // pushed by normal flow of leading state
+                socket.emit('state',{state: {sizeX: 25, sizeY: 25, objects:{}}});
                 socket.on('action', function(action) {
                     // connect action with correct client
                     // create an action for consumption by the converter
