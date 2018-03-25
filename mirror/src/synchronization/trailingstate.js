@@ -1,13 +1,17 @@
 //Trailing State Class
 const stateconverter = require('../gamelogic/stateconverter');
-const seedrandom = require('seedrandom');
 const hash = require('object-hash');
+const RNG = require('../gamelogic/rng');
 
 class TrailingState {
 
     constructor(sizeX, sizeY, seed, delay) {
-        const rng = seedrandom(seed);
-        this.state = {board: {sizeX, sizeY}, seed: rng, objects: {}};
+        const rngObject = new RNG(seed);
+        // the function defintion like makes it possible to call the class function
+        // anywhere with the intialized class scope
+        const rng = () => rngObject.gen.call(rngObject);
+        const seedf = () => rngObject.getSeed.call(rngObject);
+        this.state = {board: {sizeX, sizeY}, seed: seedf, rng, objects: {}};
         this.executedActions = [];
         this.actions = [];
         this.delay = delay;
@@ -47,7 +51,7 @@ class TrailingState {
     executeActions(currentTime) {
         while (this.actions.length > 0 && currentTime - this.delay >= this.actions[0].timestamp) {
             const executedAction = this.actions.shift();
-            this.state = stateconverter(this.state, executedAction, this.state.seed);
+            this.state = stateconverter(this.state, executedAction, this.state.rng);
             this.executedActions.push({action:executedAction, effect:hash(this.state)});
         }
     }
@@ -67,7 +71,7 @@ class TrailingState {
      * @returns {{board: {sizeX: *, sizeY: *}, seed: *, objects}}
      */
     cloneState() {
-        return {board:this.state.board, seed: this.state.seed,
+        return {board:this.state.board, rng: this.state.rng, seed: this.state.seed,
             objects: JSON.parse(JSON.stringify(this.state.objects))};
     }
 }

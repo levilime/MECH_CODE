@@ -1,5 +1,6 @@
 const ClientCommunicator = require('./client/clientcommunicator');
 const Logger = require('./log/logger').Logger;
+
 const StateConverter = require('./gamelogic/stateconverter');
 
 const initialize = (state) =>  {
@@ -8,9 +9,11 @@ const initialize = (state) =>  {
     // clarity
     global.log = new Logger("log.txt", 1000);
 
+    // global.RandomNumberGenerator = new RNG(state.seed);
+
     // Initialize the trailing state with the
 
-    // listen is called everytime there is an action that needs to be broadcasted
+    // listen is called every time there is an action that needs to be broadcasted
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
 
