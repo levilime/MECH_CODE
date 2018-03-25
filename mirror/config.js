@@ -1,0 +1,1 @@
+module.exports = {"sizeX": 25, "sizeY": 25, "objects":{}, "seed": "MECH_CODE", "port": 3000};

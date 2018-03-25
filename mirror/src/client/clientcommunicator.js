@@ -1,7 +1,12 @@
 module.exports =
     class ClientCommunicator {
 
-        constructor (actionListener) {
+        /**
+         * Initializes the ClientCommunicator
+         * @param actionListener
+         * @return {function(*=)}
+         */
+        constructor (actionListener, port) {
             const app = require('express')();
             const http = require('http').Server(app);
             const io = require('socket.io')(http);
@@ -15,26 +20,30 @@ module.exports =
                 res.sendFile(__dirname + '/index.html');
             });
 
-            io.on('connection', function(socket){
-                console.log("new connection");
+            io.on('connection', function(socket) {
+                global.log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
+
                 actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
                 // send the id to the client so it knows about it
+                // TODO create reasonable secure handshake for this
                 socket.emit('id', {id: socket.id});
-
-                // FIXME this emitting can be removed because state is just
-                // pushed by normal flow of leading state
-                // socket.emit('state',{state: {sizeX: 25, sizeY: 25, objects:{}}});
 
                 socket.on('action', function(action) {
                     // connect action with correct client
                     // create an action for consumption by the converter
+
+                    // TODO need to check here whether the player is on the board, otherwise cannot perform the action
+
                     actionListener(action);
                 });
+                socket.on('disconnect', function(socket) {
+                    global.log.push('client connection', 'client with socket id: ' + socket.id + ' has disconnected');
+                })
             });
 
-            http.listen(3000, function() {
-                console.log('listening on *:3000');
+            http.listen(port, function() {
+                global.log.push('client connection', 'listening on port: ' + port)
             });
             return send;
         }
