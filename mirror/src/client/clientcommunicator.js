@@ -21,7 +21,7 @@ module.exports =
             });
 
             io.on('connection', function(socket) {
-                log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
+                global.log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
 
                 actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
