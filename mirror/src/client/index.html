@@ -15,11 +15,17 @@
 <script>
     let playerIdentifier = undefined;
     const redrawBattleFieldFromState = (state) => {
-        const id = "test";
-        const battleField = new Array(state.sizeX).fill(Array(state.sizeY).fill(drawObject("empty")));
+        console.log(state);
+        const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject("empty")));
         Object.keys(state.objects).forEach(objectKey => {
             const object = state.objects[objectKey];
-            battleField[object.position.x][object.position.y] = drawObject(object.id === playerIdentifier ? "id": "player");
+            battleField[object.position.y] = battleField[object.position.y].map((x,i) => {
+                if(i === object.position.x) {
+                    return drawObject(object.id === playerIdentifier ? "id": "player");
+                } else {
+                    return x;
+                }
+            });
         });
         const battleFieldDom = document.getElementById("battlefield");
         battleFieldDom.innerHTML = "";
@@ -48,24 +54,20 @@
 
     const socketInitialization = () => {
         const socket = io();
-        console.log(socket);
         // tells the player the current state
-        socket.on('state', function(msg){
-            console.log(msg);
-            redrawBattleFieldFromState(msg.state);
+        socket.on('state', function(state){
+            redrawBattleFieldFromState(state);
         });
         // tells the player his id
         // FIXME unwanted like this, need to be extended with security so a player cannot pretend to be
         // another player
         socket.on('id', function(msg){
-            console.log(msg);
             playerIdentifier = msg.id;
             actionPropagator(socket);
         });
     };
 
     window.onload = () => {
-        // redrawBattleFieldFromState({sizeX: 25, sizeY: 25, objects:{}});
         socketInitialization();
     };
 
@@ -75,16 +77,16 @@
             const keyName = event.key;
 
             const actionLibrary = {
-                "w": {type: "MOVE", identifier: playerIdentifier, data: {direction: "up"}},
-                "s": {type: "MOVE", identifier: playerIdentifier, data: {direction: "down"}},
-                "a": {type: "MOVE", identifier: playerIdentifier, data: {direction: "left"}},
-                "d": {type: "MOVE", identifier: playerIdentifier, data: {direction: "right"}},
-                "z": {type: "ATTACK", identifier: playerIdentifier, data: {}},
-                "x": {type: "HEAL", identifier: playerIdentifier, data: {}},
+                "w": {type: "MOVE",  data: {direction: "up", objectType: "player"}},
+                "s": {type: "MOVE",  data: {direction: "down", objectType: "player"}},
+                "a": {type: "MOVE",  data: {direction: "left", objectType: "player"}},
+                "d": {type: "MOVE",  data: {direction: "right", objectType: "player"}},
+                "z": {type: "ATTACK", data: {objectType: "player"}},
+                "x": {type: "HEAL", data: {objectType: "player"}},
             };
 
             if (actionLibrary[keyName]) {
-                socket.emit('action', actionLibrary[keyName])
+                socket.emit('action', {...actionLibrary[keyName], identifier: playerIdentifier});
             } else {
                 alert('UNKNOWN KEY PRESS\n\n' + 'key: ' + keyName);
             }

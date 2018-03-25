@@ -5,6 +5,7 @@ const hash = require('object-hash');
 const sync = require('../src/synchronization/synchronization');
 
 describe('Trailing State Synchronization', function() {
+    global.log = {push: () => {}};
    describe('Add Action on time', function() {
        it('should add action to all trailing states', function() {
           const synchronization = new sync.Synchronization(1,1,6,2,10);

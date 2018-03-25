@@ -21,7 +21,7 @@ class Synchronization {
      * Getter for the leading state
      * @returns {*}
      */
-    get getLeadingState() {
+    getLeadingState() {
         if (this.states.length === 0) {
             return undefined;
         }
@@ -36,7 +36,7 @@ class Synchronization {
     addAction(currentTime, action) {
         //Check if Action falls within the window of the last trailing state
         if (currentTime - this.states[this.states.length - 1].delay > action.timestamp) {
-            //TODO log that action is too late to be added
+            global.log.push('synchronization', 'action too late to be added:' + JSON.stringify(action));
             return;
         }
         this.states.forEach((state) => {
@@ -91,6 +91,7 @@ class Synchronization {
      * @param rollbackStateIndex
      */
     rollback(currentTime, copyStateIndex, rollbackStateIndex) {
+        global.log.push('synchronization', 'rollback occured between: ' + [rollbackStateIndex, copyStateIndex].join(', '));
         const copyState = this.states[copyStateIndex];
         this.states[rollbackStateIndex].actions = [...copyState.actions];
         this.states[rollbackStateIndex].executedActions = [...copyState.executedActions];
