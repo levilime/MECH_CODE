@@ -67,7 +67,8 @@
                  < distanceBetweenObjects(closest, object)
                   &&
                   distanceBetweenObjects(current, object) > 0
-                     ? current : closest;
+                     ? current : closest
+                    && object.identifier !== currentKey;
             }
         }, undefined)
     };

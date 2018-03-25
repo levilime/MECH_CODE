@@ -2,6 +2,7 @@ const ClientCommunicator = require('./client/clientcommunicator');
 const Logger = require('./log/logger').Logger;
 const Multicaster = require('./caster/multicaster').Multicaster;
 const Synchronization = require('./synchronization/synchronization').Synchronization;
+const Simulation = require('./gamelogic/simulation');
 
 const initialize = (state) =>  {
     const actionEvent = 'action';
@@ -43,7 +44,10 @@ const initialize = (state) =>  {
         synchronization.execute(Date.now());
         // state is broadcasted to all clients
         send(synchronization.getLeadingState());
-    }, updateInterval)
+    }, updateInterval);
+
+    // create agents
+    new Simulation(5, 10, synchronization);
 
 };
 
