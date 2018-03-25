@@ -56,10 +56,6 @@ const converters =
             const newObject = createObject(action.data.objectType, action.identifier, rng);
             return newObject ? board.placeObject(state, board.findFreeSpot(state, rng), newObject): state;
         },
-        "PLACE": (state, action) => {
-            const newObject = action.data.object;
-            return newObject ? board.placeObject(state, newObject.position, newObject): state;
-        },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
             const victim = board.findClosestObject(state, attacker, (object) => object.type !== attacker.type);

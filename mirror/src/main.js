@@ -18,20 +18,6 @@ const initialize = (state) =>  {
         // action is one of the state converter compatible actions
 
         global.log.push('action', 'received action: ' + JSON.stringify(action));
-
-        if(action.type === "SPAWN") {
-            // TODO get leading state to find out where the object can be spawned
-            const state = {};
-            const newState = StateConverter(state, action);
-            const object = newState[action.identifier];
-            if (object) {
-                // TODO cast this message when the object could be placed
-                const toCast = {...action, type: "PLACE", data: {...action.data, object}};
-            }
-        } else {
-            // TODO cast the action
-        }
-
         // TODO put here the multicast functionality to feed the data to all mirror servers
     });
 
