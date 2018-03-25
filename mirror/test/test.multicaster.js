@@ -2,6 +2,7 @@ const assert = require('assert');
 const multicaster = require('../src/caster/multicaster');
 
 describe('Multicaster', function() {
+    global.log = {push: () => {}};
     describe('Send and Receive Multicast message', function() {
         it('should receive message from eventemitter', function() {
             const mcaster = new multicaster.Multicaster(5000);
@@ -14,9 +15,6 @@ describe('Multicaster', function() {
             });
             mcaster.sendMessage(topic, content);
         });
-    });
-
-    describe('Send and Receive Heartbeat Multicast message', function() {
         it('should receive heartbeat message from eventemitter', function() {
             const mcaster = new multicaster.Multicaster(5000);
             const eventemitter = mcaster.getEventEmitter();

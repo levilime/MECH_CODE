@@ -23,20 +23,20 @@ class Multicaster{
 
         receiver.on('message', (msg, rinfo) => {
             this.receiveMessage(msg, rinfo);
-            console.log('Receiver got: ' + msg + ' from ' + rinfo.address + ':' + rinfo.port);
+            global.log.push('multicaster', 'Receiver got: ' + msg + ' from ' + rinfo.address + ':' + rinfo.port);
         });
 
         receiver.on('listening', () => {
             const address = receiver.address();
-            console.log('Receiver listening ' + address.address + ':' + address.port);
+            global.log.push('multicaster', 'Receiver listening ' + address.address + ':' + address.port);
         });
 
         receiver.on('error', (error) => {
-            console.log('Receiver error: ' + error);
+            global.log.push('multicaster', 'Receiver error: ' + error);
         });
 
         receiver.on('close', () => {
-            console.log('Receiver closed');
+            global.log.push('multicaster', 'Receiver closed');
         });
 
         receiver.bind(this.port);
@@ -67,15 +67,15 @@ class Multicaster{
         const sender = dgram.createSocket('udp4');
         sender.on('listening', () => {
             sender.setBroadcast(true);
-            console.log('Sender listening');
+            global.log.push('multicaster', 'Sender listening');
         });
 
         sender.on('error', (error) => {
-            console.log('Sender error: ' + error);
+            global.log.push('multicaster', 'Sender error: ' + error);
         });
 
         sender.on('close', () => {
-            console.log('Sender closed');
+            global.log.push('multicaster', 'Sender closed');
         });
 
         sender.bind();

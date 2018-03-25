@@ -13,7 +13,7 @@ module.exports =
 
             const send = (state) => {
                 // broadcast state to all listening clients
-                io.emit(state);
+                io.emit('state', state);
             };
 
             app.get('/', function(req, res){
@@ -24,7 +24,7 @@ module.exports =
                 global.log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
 
-                actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
+                actionListener({type: "SPAWN", identifier: socket.id, data: {objectType: "player"}});
                 // send the id to the client so it knows about it
                 // TODO create reasonable secure handshake for this
                 socket.emit('id', {id: socket.id});
@@ -38,7 +38,7 @@ module.exports =
                     actionListener(action);
                 });
                 socket.on('disconnect', function(socket) {
-                    global.log.push('client connection', 'client with socket id: ' + socket.id + ' has disconnected');
+                    global.log.push('client connection', 'client has disconnected');
                 })
             });
 

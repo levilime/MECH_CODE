@@ -8,10 +8,10 @@
     const directionPosition = (position, direction) => {
         const dir = {
             "up": (position) => {
-                return {...position, y: position.y + 1};
+                return {...position, y: position.y - 1};
             },
             "down": (position) => {
-                    return {...position, y: position.y - 1};
+                    return {...position, y: position.y + 1};
             },
             "left": (position) => {
                     return {...position, x: position.x - 1};
