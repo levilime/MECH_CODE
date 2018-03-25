@@ -34,6 +34,24 @@ describe('Converter logic', function() {
             assert.equal(newState.objects["monster1"].id, "monster1");
         });
     });
+    describe('place Object', function() {
+        it('should place a player', function() {
+            const state = {
+                board : {
+                    sizeX: 1,
+                    sizeY: 1
+                },
+                objects: {},
+                seed: 6
+            };
+            seedrandom(state.seed, {global: true});
+            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}};
+            const newState = converter(state, action, Math.random);
+            const actionPlace = {type: "PLACE", identifier: "player1", data: {object: newState.objects["player1"]}};
+            const newStatePlace = converter(state, actionPlace);
+            assert.equal(newStatePlace.objects["player1"].id, "player1");
+        });
+    });
     describe('move Object', function() {
         it('should move an object', function() {
             const state = {
