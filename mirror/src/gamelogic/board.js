@@ -1,5 +1,3 @@
-const logger = require('../log/logger').instantiatedLogger;
-
 /**
      * @param position
      * @param direction
@@ -24,7 +22,7 @@ const logger = require('../log/logger').instantiatedLogger;
         };
 
         if (! dir[direction]) {
-            logger.push('action', 'action: MOVE cannot be performed with direction: ' + direction);
+            global.log.push('action', 'action: MOVE cannot be performed with direction: ' + direction);
             return undefined;
         } else {
             return dir[direction](position);
@@ -78,13 +76,6 @@ const logger = require('../log/logger').instantiatedLogger;
         return Math.abs(a.position.x - b.position.x) + Math.abs(a.position.y - b.position.y);
     };
 
-    const findPositionOfObject = (state, object) => {
-        if (state.objects[object.id]) {
-            return state.objects[object.id].position;
-        }
-        return undefined;
-    };
-
     const findFreeSpot = (state, rng) => {
         const sizeX = state.board.sizeX;
         const sizeY = state.board.sizeY;
@@ -107,7 +98,7 @@ const logger = require('../log/logger').instantiatedLogger;
    const placeObject = (state, position, object) =>  {
         if(positionExists(state.board, position) && positionIsEmpty(state, position)) {
             if(state.objects[object.id]) {
-                logger.push('action', 'place object is not possible because id: ' + object.id + ' already exists.' );
+                global.log.push('action', 'place object is not possible because id: ' + object.id + ' already exists.' );
             } else {
                 return {...state, objects: {...state.objects, [object.id]: {...object, position}}}
             }
@@ -126,7 +117,7 @@ const logger = require('../log/logger').instantiatedLogger;
                 delete newObjects[object.id];
                 return {...state, objects: newObjects};
             }
-            logger.push('action', 'remove object failed because id: ' + object.id + ' does not exist.' );
+        global.log.push('action', 'remove object failed because id: ' + object.id + ' does not exist.' );
             return state;
     };
 

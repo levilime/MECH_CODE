@@ -1,4 +1,4 @@
-const logger = require('../log/logger').instantiatedLogger;
+
 
 module.exports =
     class ClientCommunicator {
@@ -8,7 +8,7 @@ module.exports =
          * @param actionListener
          * @return {function(*=)}
          */
-        constructor (actionListener) {
+        constructor (actionListener, port) {
             const app = require('express')();
             const http = require('http').Server(app);
             const io = require('socket.io')(http);
@@ -23,7 +23,7 @@ module.exports =
             });
 
             io.on('connection', function(socket){
-                logger.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
+                log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
                 actionListener({type: "SPAWN", identifier: socket.id, data: {type: "player"}});
                 // send the id to the client so it knows about it
@@ -40,8 +40,8 @@ module.exports =
                 });
             });
 
-            http.listen(3000, function() {
-                console.log('listening on *:3000');
+            http.listen(port, function() {
+                global.log.push('client socket', 'listening on port: ' + port)
             });
             return send;
         }

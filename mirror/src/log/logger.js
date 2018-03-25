@@ -5,12 +5,14 @@ At intervals the log is appended to disc.
 
 const fs = require('fs');
 
-
+/**
+ * One time instantiated logger
+ */
 class Logger {
-    constructor() {
+    constructor(file, spillInterval) {
         this.log = [];
-        this.file = "log.txt";
-        this.spillInterval = 1000;
+        this.file = file;
+        this.spillInterval = spillInterval;
         this.createLogFile(this.file);
 
         // spill log to disc every second
@@ -26,12 +28,15 @@ class Logger {
         this.push('logger', 'initialized the logger');
     };
 
+    /**
+     * creates a logfile at the location
+     * @param location
+     */
     createLogFile(location) {
         fs.writeFile(location, "", (err) => {
             if (err) throw err;
         });
     };
-
 
     /**
      * Takes a message and logs it appropriately.
@@ -41,8 +46,9 @@ class Logger {
     push(type, msg) {
         // FIXME get the time correctly
         const time = new Date().toISOString();
-        this.log.push({time,  type, msg});
-        console.log({time, type, msg});
+        const logEntry = {time,  type, msg};
+        this.log.push(logEntry);
+        console.log(logEntry);
     };
 
     /**
@@ -58,6 +64,4 @@ class Logger {
     }
 }
 
-let instantiatedLogger = new Logger();
-
-module.exports = {instantiatedLogger, Logger};
+module.exports = {Logger};

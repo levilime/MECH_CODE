@@ -10,7 +10,6 @@ const monsterVariableHealth = 50;
 const monsterBaseAP = 5;
 const monsterVariableAP = 15;
 
-// TODO add some randomization logic for health and ap
 const objects = {
     player: (identifier, rng) => {return                     {
         id: identifier,
