@@ -7,31 +7,58 @@ const monster = "monster";
 
 module.exports = class Simulation {
 
-    constructor(monsterAmount, playerAgentAmount, synchronization) {
-        const monsters = Array(monsterAmount).fill().map((x,i) =>
-        {return {id:  monster + i, objectType: monster};}
-        );
-
-        const players = Array(playerAgentAmount).fill().map((x,i) =>
-            {return {id:  player + "Agent" +  i, objectType: player};}
-        );
-        [...monsters, ...players].forEach((agent) => {
-            synchronization.addAction(Date.now(), {type: "SPAWN", identifier: agent.id, data:{objectType: agent.objectType}, timestamp: Date.now()});
-            setInterval(() => {
-                const objects = synchronization.getLeadingState().objects;
-                // TODO replace placeholder time by synchronized time
-                if(!objects[agent.id]) {
-                    return;
-                }
-                const action =  agentLibrary[agent.objectType](synchronization.getLeadingState(), objects[agent.id]);
-                if(action) {
-                    synchronization.addAction(Date.now(), agentLibrary[agent.objectType](synchronization.getLeadingState(), objects[agent.id]));
-                }
-            }, updateInterval);
+    spawn(id, objectType, currentTime) {
+        this.synchronization.addAction(currentTime, {
+            type: "SPAWN",
+            identifier: agent.id,
+            data: {objectType: agent.objectType},
+            timestamp: Date.now()
         });
     }
 
-}
+    updateAgents(currentTime) {
+        this.agents.forEach((agent) => {
+            const objects = this.synchronization.getLeadingState().objects;
+            // TODO replace placeholder time by synchronized time
+            if (!objects[agent.id]) {
+                return;
+            }
+            const action = agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]);
+            if (action) {
+                this.synchronization.addAction(currentTime,
+                    agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]));
+            }
+        });
+    }
+
+    updateAgentsContinuously(interval) {
+        const self = this;
+        setInterval(() => {
+            self.updateAgents(Date.now());
+        }, interval)
+    }
+
+    constructor(monsterAmount, playerAgentAmount, synchronization, currentTime) {
+        const self = this;
+        this.synchronization = synchronization;
+        const monsters = Array(monsterAmount).fill().map((x, i) => {
+                return {id: monster + i, objectType: monster};
+            }
+        );
+
+        const players = Array(playerAgentAmount).fill().map((x, i) => {
+                return {id: player + "Agent" + i, objectType: player};
+            }
+        );
+
+        this.agents = [...monsters, ...players];
+
+        // initial spawning
+        this.agents.forEach((agent) => {
+            self.spawn(agent.id, agent.objectType, currentTime);
+        });
+    }
+};
 
 // TODO put this at one place
 const attackDistance = 2;
