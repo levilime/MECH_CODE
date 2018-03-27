@@ -1,4 +1,5 @@
 mirror/.idea
+clientAgent/node_modules
 mirror/node_modules
 .idea
 mirror/log.txt

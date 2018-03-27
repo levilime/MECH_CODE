@@ -1,0 +1,26 @@
+{
+  "name": "mirror",
+  "version": "1.0.0",
+  "description": "Mirror Server for Distributed Systems course\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[2~Traling state mirror server for the Distributed Systems course @ Tu Delft\u001b[D\u001b[D\u001b[D",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/levilime/MECH_CODE.git"
+  },
+  "keywords": [
+    "MECH"
+  ],
+  "author": "Levi and Hao Ming",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/levilime/MECH_CODE/issues"
+  },
+  "homepage": "https://github.com/levilime/MECH_CODE#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^1.7.3"
+  }
+}

@@ -34,7 +34,7 @@ module.exports =
                     // create an action for consumption by the converter
 
                     // TODO need to check here whether the player is on the board, otherwise cannot perform the action
-
+                    // FIXME fix that right now the id is decided upon by the client
                     actionListener(action);
                 });
                 socket.on('disconnect', function(socket) {

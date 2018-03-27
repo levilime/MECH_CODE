@@ -10,7 +10,7 @@ const initialize = (state) =>  {
     const syncDelay = 50;
     const updateInterval = 100;
     const dragonAmount = 10;
-    const agentAmount = 20;
+    const agentAmount = 0;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -25,6 +25,7 @@ const initialize = (state) =>  {
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
         // TODO replace placeholder time by synchronized time
+        // FIXME fix that right now the id is decided upon by the client
         const timestampedAction = {...action, timestamp: Date.now()};
         global.log.push('action', 'received action: ' + JSON.stringify(timestampedAction));
         // multicast functionality to feed the data to all mirror servers

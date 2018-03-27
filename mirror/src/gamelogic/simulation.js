@@ -38,27 +38,31 @@ class Simulation {
         this.synchronization.addAction(currentTime, spawn);
     }
 
-    updateAgent(agent, currentTime) {
-        const objects = this.synchronization.getLeadingState().objects;
-        if (!objects[agent.id]) {
-            global.log.push('simulation', 'nonexistent simulation agent not updated: ' + agent.id);
-            return;
-        }
+    static updateAgent(state, agent, currentTime) {
         const action = agentLibrary[agent.type];
         if (action) {
-            const agentAction = agentLibrary[agent.type](this.synchronization.getLeadingState(), objects[agent.id], currentTime);
+            const agentAction = agentLibrary[agent.type](state, agent, currentTime);
             global.log.push('simulation', 'agent: ' + agent.id + ' gets action: ' + JSON.stringify(agentAction));
-            this.synchronization.addAction(currentTime, agentAction);
+            return agentAction;
         } else {
             global.log.push('simulation', 'no actions for agent type: ' + agent.type +
                 ' object: ' + JSON.stringify(agent));
         }
     }
 
+    checkIfAgentExists() {
+    //     if (!objects[agent.id]) {
+    //     global.log.push('simulation', 'nonexistent simulation agent not updated: ' + agent.id);
+    //     return;
+    // }
+        return !!this.synchronization.getLeadingState().objects[agent.id];
+    }
+
     updateAgents(currentTime) {
         const self  = this;
         this.agents.forEach((agent) => {
-            self.updateAgent(agent, currentTime);
+            const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
+            self.synchronization.addAction(currentTime, action);
         });
     }
 
@@ -69,7 +73,9 @@ class Simulation {
             global.log.push('simulation', 'destroyed agent' + JSON.stringify({[agent.id]: agent}));
             return;
         }
-        this.updateAgent(agent, Date.now());
+        const currentTime = Date.now();
+        const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
+        self.synchronization.addAction(currentTime, action);
         setTimeout( (agent, interval) => () => self.updateAgentContiniously(agent, interval), interval);
 
     }
