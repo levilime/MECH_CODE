@@ -117,4 +117,50 @@ describe('Board logic', function() {
             assert.deepEqual(nextState, newState);
         });
     });
+    describe('find closest object', function() {
+        it('find nearest player', function() {
+            const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0}, health: 80, ap:20};
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [player2.id]: player2},
+                seed: 6
+            };
+            const closestPlayer = board.findClosestObject(state, player,
+                (current) => current.type === player.type);
+            assert.deepEqual(player2, closestPlayer);
+        });
+        it('find nearest player that is low on health', function() {
+            const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0}, health: 1, ap:20};
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [player2.id]: player2},
+                seed: 6
+            };
+            const closestPlayer = board.findClosestObject(state, player, (current) => current.type === player.type && current.health < 10);
+            assert.deepEqual(player2, closestPlayer);
+        });
+        it('find nearest monster', function() {
+            const player = {id: "player1", type: "player", position: {x: 0, y: 0}, health: 100, ap: 20};
+            const player2 = {id: "player2", type: "player", position: {x: 1, y: 0}, health: 1, ap:20};
+            const monster = {id: "monster", type: "monster", position: {x: 2, y: 0}, health: 1000, ap:20};
+            const state = {
+                board : {
+                    sizeX: 3,
+                    sizeY: 1
+                },
+                objects: {[player.id] :player, [player2.id]: player2, monster},
+                seed: 6
+            };
+            const closestMonster = board.findClosestObject(state, player, (current) => current.type !== player.type);
+            assert.deepEqual(monster, closestMonster);
+        });
+    });
 });

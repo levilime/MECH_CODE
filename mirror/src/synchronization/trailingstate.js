@@ -2,6 +2,7 @@
 const stateconverter = require('../gamelogic/stateconverter');
 const hash = require('object-hash');
 const RNG = require('../gamelogic/rng');
+const MAX_MESSAGES = 100;
 
 class TrailingState {
 
@@ -23,8 +24,15 @@ class TrailingState {
      */
     addAction(action) {
         // currentTime - state.delay > action.timestamp
+
+        if (this.actions.length > MAX_MESSAGES) {
+            global.log.push('trailingState, delay: ' + this.delay, 'queue is full, not added:' + JSON.stringify({[action.identifier]: action}));
+            return;
+        }
+
         if (this.actions.find((a) => a.identifier === action.identifier) !== undefined) {
-            //TODO log that action with same identifier is already in the list
+            //log that action with same identifier is already in the list
+            global.log.push('trailingState, delay: ' + this.delay, 'could not add action due to same id:' + action.identifier);
             return;
         }
 
@@ -34,10 +42,15 @@ class TrailingState {
         } else if (this.actions[this.actions.length - 1].timestamp < action.timestamp) {
             this.actions.push(action);
         } else {
-            for (let i = this.actions.length - 1; i > 0; i--) {
+            const currentSize = this.actions.length;
+            for (let i = this.actions.length - 1; i >= 0; i--) {
                 //Insert sort action
-                if (this.actions[i].timestamp > action.timestamp && this.actions[i - 1].timestamp <= action.timestamp) {
-                    this.actions.splice(i, 0, action);
+                if (this.actions[i].timestamp <= action.timestamp) {
+                    this.actions.splice(i + 1, 0, action);
+                    break;
+                } else if (this.actions.length === currentSize && i === 0) {
+                    this.actions.unshift(action);
+                    break;
                 }
             }
         }

@@ -97,7 +97,7 @@ describe('Converter logic', function() {
             };
             const action = {type: "ATTACK", identifier: monster.id};
             const nextState = converter(state, action, Math.random);
-            const newState = Object.assign({}, state);
+            const newState = JSON.parse(JSON.stringify(state));
             newState.objects.player.health = state.objects.player.health - state.objects.monster.ap;
             assert.deepEqual(nextState, newState);
     });

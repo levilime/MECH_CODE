@@ -15,13 +15,12 @@
 <script>
     let playerIdentifier = undefined;
     const redrawBattleFieldFromState = (state) => {
-        console.log(state);
         const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject("empty")));
         Object.keys(state.objects).forEach(objectKey => {
             const object = state.objects[objectKey];
             battleField[object.position.y] = battleField[object.position.y].map((x,i) => {
                 if(i === object.position.x) {
-                    return drawObject(object.id === playerIdentifier ? "id": "player");
+                    return drawObject(object.id === playerIdentifier ? "id": object.type);
                 } else {
                     return x;
                 }

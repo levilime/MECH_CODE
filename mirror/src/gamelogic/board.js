@@ -56,18 +56,23 @@
     };
 
     const findClosestObject = (state, object, additionalCheck) => {
-        Object.keys(state.objects).reduce((closest, currentKey) => {
+        return Object.keys(state.objects).reduce((closest, currentKey) => {
             const current = state.objects[currentKey];
+            // checks that are done in both branches
+            const additionalCheckOK = additionalCheck ? (!!additionalCheck(current)): true;
+            const notSameAsObject = object.id !== currentKey;
+            // if there has not been a closest match
             if(!closest) {
-                return additionalCheck ? (additionalCheck(current) ? current: undefined): current;
+                return (additionalCheckOK && notSameAsObject ? current: undefined);
             } else {
-                return (additionalCheck ? !!additionalCheck(current): true)
+                const swapCurrent = additionalCheckOK
                 &&
+                // distance between current and object is smaller than previous
+                // smallest distance
                 distanceBetweenObjects(current, object)
                  < distanceBetweenObjects(closest, object)
-                  &&
-                  distanceBetweenObjects(current, object) > 0
-                     ? current : closest;
+                    && notSameAsObject;
+                return swapCurrent ? current : closest;
             }
         }, undefined)
     };

@@ -23,6 +23,7 @@ const createObject = require('./createobject');
 const player = "player";
 const monster = "monster";
 
+// TODO put this at one place
 const attackDistance = 2;
 const healDistance = 5;
 
@@ -38,35 +39,50 @@ module.exports = (state, action, rng) => {
         global.log.push('action', 'action: ' + action.type + ' does not exist');
         return state;
     }
+    //return state.objects[action.identifier]? converters[action.type](state, action, rng): state;
     return converters[action.type](state, action, rng);
 };
 
 const converters =
     {
         "MOVE": (state, action) => {
+            if(!state.objects[action.identifier]) {
+                global.log.push('action', 'action: ' + action.type + ' cannot be performed by nonexistent: ' + action.identifier);
+                return state;
+            }
             if(action.data.objectType === player) {
                 return board.moveObject(state, state.objects[action.identifier], action.data.direction);
             } else {
                 global.log.push('action', 'action: ' + action.type + ' cannot be performed by: ' + action.data.objectType);
-                // TODO log action cannot be performed by this action.objectType
                 return state;
             }
         },
         "SPAWN": (state, action, rng) => {
             const newObject = createObject(action.data.objectType, action.identifier, rng);
+            global.log.push('action', 'spawned:  ' + JSON.stringify(newObject));
             return newObject ? board.placeObject(state, board.findFreeSpot(state, rng), newObject): state;
         },
         "ATTACK": (state, action) => {
             const attacker = state.objects[action.identifier];
+            if(!attacker) {
+                global.log.push('action', 'action: ' + action.type + ' cannot be performed by nonexistent: ' + action.identifier);
+                return state;
+            }
             const victim = board.findClosestObject(state, attacker, (object) => object.type !== attacker.type);
             return victim && board.distanceBetweenObjects(attacker, victim) <= attackDistance
                 ? board.attack(state, attacker, victim): state;
         },
         "HEAL": (state, action) => {
             const healer = state.objects[action.identifier];
-            const patient = board.findClosestObject(state, healer, (object) => object.type === player);
+            if(!healer) {
+                global.log.push('action', 'action: ' + action.type + ' cannot be performed by nonexistent: ' + action.identifier);
+                return state;
+            }
+            const patient = board.findClosestObject(state, healer, (object) => object.type === healer.type);
             return patient && board.distanceBetweenObjects(healer, patient) <= healDistance
                 ? board.heal(state, healer, patient): state;
         }
     };
+
+
     

@@ -14,11 +14,13 @@ const objects = {
     player: (identifier, rng) => {return                     {
         id: identifier,
         health: playerBaseHealth + Math.round(rng() * playerVariableHealth),
-        ap: Math.ceil(rng() * playerVariableAP)
+        ap: Math.ceil(rng() * playerVariableAP),
+        type: "player"
     };},
     monster: (identifier, rng) => {return                     {
         id: identifier,
         health: monsterBaseHealth +  Math.round(rng() * monsterVariableHealth),
-        ap: monsterBaseAP + Math.round(rng() * monsterVariableAP)
+        ap: monsterBaseAP + Math.round(rng() * monsterVariableAP),
+        type: "monster"
     };}
 };
