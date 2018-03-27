@@ -2,15 +2,15 @@ const ClientCommunicator = require('./client/clientcommunicator');
 const Logger = require('./log/logger').Logger;
 const Multicaster = require('./caster/multicaster').Multicaster;
 const Synchronization = require('./synchronization/synchronization').Synchronization;
-const Simulation = require('./gamelogic/simulation');
+const {Simulation} = require('./gamelogic/simulation');
 
 const initialize = (state) =>  {
     const actionEvent = 'action';
     const numStates = 5;
-    const syncDelay = 500;
-    const updateInterval = 500;
-    const dragonAmount = 1;
-    const agentAmount = 10;
+    const syncDelay = 50;
+    const updateInterval = 100;
+    const dragonAmount = 10;
+    const agentAmount = 20;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -49,10 +49,10 @@ const initialize = (state) =>  {
     }, updateInterval);
 
     // create agents
+    // TODO because simulation must also initialize after the game has started, it needs to take in
+    // the state of the game and be able to continue it
     const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now());
     simulation.updateAgentsContinuously(updateInterval);
-
-
 };
 
 initialize(require('../config'));

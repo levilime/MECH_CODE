@@ -78,7 +78,7 @@ const converters =
                 global.log.push('action', 'action: ' + action.type + ' cannot be performed by nonexistent: ' + action.identifier);
                 return state;
             }
-            const patient = board.findClosestObject(state, healer, (object) => object.type === player);
+            const patient = board.findClosestObject(state, healer, (object) => object.type === healer.type);
             return patient && board.distanceBetweenObjects(healer, patient) <= healDistance
                 ? board.heal(state, healer, patient): state;
         }
