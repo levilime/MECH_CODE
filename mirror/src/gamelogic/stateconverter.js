@@ -59,6 +59,7 @@ const converters =
         },
         "SPAWN": (state, action, rng) => {
             const newObject = createObject(action.data.objectType, action.identifier, rng);
+            global.log.push('action', 'spawned:  ' + JSON.stringify(newObject));
             return newObject ? board.placeObject(state, board.findFreeSpot(state, rng), newObject): state;
         },
         "ATTACK": (state, action) => {

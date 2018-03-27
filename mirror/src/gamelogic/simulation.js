@@ -1,42 +1,9 @@
 const board = require('./board');
 
-const updateInterval = 5000;
-
 const player = "player";
 const monster = "monster";
 
 module.exports = class Simulation {
-
-    spawn(id, objectType, currentTime) {
-        this.synchronization.addAction(currentTime, {
-            type: "SPAWN",
-            identifier: agent.id,
-            data: {objectType: agent.objectType},
-            timestamp: Date.now()
-        });
-    }
-
-    updateAgents(currentTime) {
-        this.agents.forEach((agent) => {
-            const objects = this.synchronization.getLeadingState().objects;
-            // TODO replace placeholder time by synchronized time
-            if (!objects[agent.id]) {
-                return;
-            }
-            const action = agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]);
-            if (action) {
-                this.synchronization.addAction(currentTime,
-                    agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]));
-            }
-        });
-    }
-
-    updateAgentsContinuously(interval) {
-        const self = this;
-        setInterval(() => {
-            self.updateAgents(Date.now());
-        }, interval)
-    }
 
     constructor(monsterAmount, playerAgentAmount, synchronization, currentTime) {
         const self = this;
@@ -57,6 +24,45 @@ module.exports = class Simulation {
         this.agents.forEach((agent) => {
             self.spawn(agent.id, agent.objectType, currentTime);
         });
+        return this;
+    }
+
+    spawn(id, objectType, currentTime) {
+        const spawn = {
+            type: "SPAWN",
+            identifier: id,
+            data: {objectType},
+            timestamp: currentTime
+        };
+        global.log.push('simulation', 'spawn: ' + JSON.stringify(spawn));
+        this.synchronization.addAction(currentTime, spawn);
+    }
+
+    updateAgents(currentTime) {
+        this.agents.forEach((agent) => {
+            const objects = this.synchronization.getLeadingState().objects;
+            if (!objects[agent.id]) {
+                global.log.push('simulation', 'nonexistent simulation agent not updated: ' + agent.id);
+                return;
+            }
+            const action = agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]);
+            if (action) {
+                const agentAction = agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]);
+                global.log.push('simulation', 'agent: ' + agent.id + ' gets action: ' + JSON.stringify(agentAction));
+                this.synchronization.addAction(currentTime,
+                    agentLibrary[agent.objectType](this.synchronization.getLeadingState(), objects[agent.id]));
+            }
+        });
+    }
+
+    updateAgentsContinuously(interval) {
+        const self = this;
+        setInterval(() => {
+            // TODO kill agents that are dead
+            // self.agents  = self.agents.filter(agent => self.synchronization.getLeadingState().objects[agent.id]);
+            // TODO replace placeholder time by synchronized time
+            self.updateAgents(Date.now());
+        }, interval)
     }
 };
 
@@ -70,7 +76,7 @@ const monsterMove = (state, object) =>  {
 };
 
 const playerAgentMove = (state, object) => {
-    if(!state.objects[object.identifier]) {
+    if(!state.objects[object.id]) {
         return;
     }
         const baseAction = {identifier: object.identifier, timestamp: Date.now()};

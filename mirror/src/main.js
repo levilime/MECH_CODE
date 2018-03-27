@@ -7,8 +7,10 @@ const Simulation = require('./gamelogic/simulation');
 const initialize = (state) =>  {
     const actionEvent = 'action';
     const numStates = 5;
-    const syncDelay = 50;
-    const updateInterval = 50;
+    const syncDelay = 500;
+    const updateInterval = 500;
+    const dragonAmount = 1;
+    const agentAmount = 10;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -47,7 +49,9 @@ const initialize = (state) =>  {
     }, updateInterval);
 
     // create agents
-    new Simulation(5, 10, synchronization);
+    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now());
+    simulation.updateAgentsContinuously(updateInterval);
+
 
 };
 

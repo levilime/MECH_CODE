@@ -24,7 +24,8 @@ class TrailingState {
     addAction(action) {
         // currentTime - state.delay > action.timestamp
         if (this.actions.find((a) => a.identifier === action.identifier) !== undefined) {
-            //TODO log that action with same identifier is already in the list
+            //log that action with same identifier is already in the list
+            global.log.push('trailingState', 'could not add action due to same id:' + action.identifier);
             return;
         }
 
@@ -34,10 +35,13 @@ class TrailingState {
         } else if (this.actions[this.actions.length - 1].timestamp < action.timestamp) {
             this.actions.push(action);
         } else {
-            for (let i = this.actions.length - 1; i > 0; i--) {
+            var currentSize = this.actions.length;
+            for (let i = this.actions.length - 1; i >= 0; i--) {
                 //Insert sort action
-                if (this.actions[i].timestamp > action.timestamp && this.actions[i - 1].timestamp <= action.timestamp) {
+                if (this.actions[i].timestamp <= action.timestamp) {
                     this.actions.splice(i, 0, action);
+                } else if (this.actions.length === currentSize && i === 0) {
+                    this.actions.unshift(action);
                 }
             }
         }
