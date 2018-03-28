@@ -110,16 +110,18 @@ class Synchronization {
         const leadingState = this.getLeadingState();
         const actionQueue = [...leadingState.executedActions.map((x) => x.action), ...leadingState.actions];
         // this.states = trailingstates;
-        this.states.forEach((state, index) => {
-            state.actions = trailingstates[index].actions;
-            state.executedActions = trailingstates[index].executedActions;
-            state.state = trailingstates[index].state;
-            state.delay = trailingstates[index].delay;
+
+        this.states = trailingstates.map((ts, index) => {
+            const newState = new t_states.TrailingState(ts.state.board.sizeX, ts.state.board.sizeY, ts.seed, ts.delay);
+            newState.actions = ts.actions;
+            newState.executedActions = ts.executedActions;
+            newState.state.objects = ts.state.objects;
 
             //Add actions that needed to wait
-            actionQueue.forEach((action) => {state.addAction(action);});
-            state.executeActions(currentTime);
+            actionQueue.forEach((action) => {newState.addAction(action);});
+            return newState;
         });
+        this.execute(currentTime);
     }
 
 }

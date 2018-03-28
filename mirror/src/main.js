@@ -59,6 +59,9 @@ const initialize = (state) =>  {
        if (peer) {
            //Peer has come back alive
            //TODO RNG send for recovery
+           const trailingstates = synchronization.states.map((ts) => {
+              return {...ts, state:{board: ts.state.board, objects: state.state.objects}, seed: ts.state.seed.getSeed()};
+           });
            multicaster.sendMessage(recoveryEvent, synchronization);
        }
     });
