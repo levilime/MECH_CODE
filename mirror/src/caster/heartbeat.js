@@ -16,11 +16,12 @@ class Heartbeat {
     update(currentTime, message) {
         const peer = this.peerList.find((peer) => peer.address === message.address && peer.port === message.port);
         if (peer === undefined) {
-            this.peerList.push({address: message.address, port: message.port, alive: true, timestamp: message.timestamp});
+            this.peerList.push({address: message.address, port: message.port, alive: true, timestamp: message.timestamp, playerList: []});
         } else {
             if (!peer.alive) {
                 peer.alive = true;
                 peer.timestamp = message.timestamp;
+                peer.playerList = [];
                 //TODO peer has come back alive, so send states to this peer
                 return peer;
             }
@@ -35,6 +36,26 @@ class Heartbeat {
             }
         });
         return undefined;
+    }
+
+    /**
+     * Return the dead peers
+     * @returns {Array.<*>}
+     */
+    getDeadPeers() {
+        return this.peerList.filter((peer) => !peer.alive);
+    }
+
+    /**
+     * Update player list of peer
+     * @param spawnAction
+     */
+    updatePlayerList(spawnAction) {
+        const peer = this.peerList.find((peer) => peer.address === spawnAction.address && peer.port === spawnAction.port);
+        if (peer === undefined || peer.playerList.indexOf(spawnAction.identifier) !== -1) {
+            //TODO Failed to find peer that send the message or ID already exists in player list
+        }
+        peer.playerList.push(spawnAction.identifier);
     }
 
     /**

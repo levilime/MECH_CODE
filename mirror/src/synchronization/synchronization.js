@@ -124,6 +124,13 @@ class Synchronization {
         this.execute(currentTime);
     }
 
+    /**
+     * Remove list of player ids from all trailing states
+     * @param playerList
+     */
+    removePlayers(playerList) {
+        this.states.forEach((state) => state.removePlayers(playerList));
+    }
 }
 
 module.exports = {Synchronization};

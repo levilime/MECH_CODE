@@ -88,6 +88,16 @@ class TrailingState {
         return {board:this.state.board, rng: this.state.rng, seed: this.state.seed,
             objects: JSON.parse(JSON.stringify(this.state.objects))};
     }
+
+    /**
+     * Remove list of player ids
+     * @param playerList
+     */
+    removePlayers(playerList) {
+      this.state.objects = this.state.objects.filter((o) => {
+          return playerList.indexOf(o.id) === -1;
+      });
+    }
 }
 
 module.exports = {TrailingState};

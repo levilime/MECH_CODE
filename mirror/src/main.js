@@ -26,6 +26,28 @@ const initialize = (state) =>  {
     // initializes the trailing state manager
     const synchronization = new Synchronization(state.sizeX, state.sizeY, state.seed, numStates, syncDelay);
 
+    //Heartbeat protocol
+    const heartbeat = new Heartbeat(max_peer_alive_time);
+    multicaster.getEventEmitter().on(heartbeatEvent, (heartbeat) => {
+        const peer = heartbeat.update(Date.now(), heartbeat);
+        const deadPeers = heartbeat.getDeadPeers();
+        if (deadPeers.length > 0) {
+            //Remove players from the states
+            deadPeers.forEach((deadPeer) => synchronization.removePlayers(deadPeer.playerList));
+        }
+        if (peer) {
+            //Peer has come back alive
+            //TODO RNG send for recovery
+            const trailingstates = synchronization.states.map((ts) => {
+                return {...ts, state:{board: ts.state.board, objects: state.state.objects}, seed: ts.state.seed.getSeed()};
+            });
+            multicaster.sendMessage(recoveryEvent, synchronization);
+        }
+    });
+    multicaster.getEventEmitter().on(recoveryEvent, (recovery) => {
+        synchronization.recover(Date.now(), recovery);
+    });
+
     // listen is called every time there is an action that needs to be broadcasted
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
@@ -39,6 +61,9 @@ const initialize = (state) =>  {
     // logic of the mirror server receiving a multicast message and sending it
     // to the trailing logic.
     multicaster.getEventEmitter().on(actionEvent, (action) => {
+        if (action.type === 'SPAWN') {
+            heartbeat.updatePlayerList(action);
+        }
         // TODO replace placeholder time by synchronized time
         synchronization.addAction(Date.now(), action);
     });
@@ -52,22 +77,6 @@ const initialize = (state) =>  {
         // state is broadcasted to all clients
         send(synchronization.getLeadingState());
     }, updateInterval);
-
-    const heartbeat = new Heartbeat(max_peer_alive_time);
-    multicaster.getEventEmitter().on(heartbeatEvent, (heartbeat) => {
-       const peer = heartbeat.update(Date.now(), heartbeat);
-       if (peer) {
-           //Peer has come back alive
-           //TODO RNG send for recovery
-           const trailingstates = synchronization.states.map((ts) => {
-              return {...ts, state:{board: ts.state.board, objects: state.state.objects}, seed: ts.state.seed.getSeed()};
-           });
-           multicaster.sendMessage(recoveryEvent, synchronization);
-       }
-    });
-    multicaster.getEventEmitter().on(recoveryEvent, (recovery) => {
-        synchronization.recover(Date.now(), recovery);
-    });
 
     setInterval(() => {
         multicaster.sendMessage(heartbeatEvent, {timestamp:Date.now()});
