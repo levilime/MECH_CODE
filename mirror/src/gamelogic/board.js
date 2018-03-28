@@ -88,10 +88,10 @@
         const taken = Object.keys(state.objects).map(key => {
             const object = state.objects[key];
             const position = object.position;
-            return position.x * sizeX + position.y;
+            return position.y * sizeX + position.x;
         });
         // take a permitted random location
-        const aim = Math.ceil(rng() * (sizeX * sizeY - (taken.length + 1)));
+        const aim = Math.ceil(rng() * ((sizeX * sizeY - 1) - (taken.length)));
         // find all free spots
         const spots = Array(sizeX * sizeY).fill(0).map((x,i) => i).filter(value => !taken.includes(value));
         // take the one that was chosen by the rng
