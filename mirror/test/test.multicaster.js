@@ -28,5 +28,6 @@ describe('Multicaster', function() {
             });
             mcaster.sendMessage(topic, content);
         });
+
     });
 });

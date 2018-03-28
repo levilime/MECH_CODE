@@ -51,12 +51,8 @@ class Multicaster{
      */
     receiveMessage(msg, rinfo) {
         const parsedMsg = JSON.parse(msg.toString('utf8'));
-        // if (parsedMsg.topic === 'HEARTBEAT') {
         const content = {...parsedMsg.content, address: rinfo.address, port: rinfo.port};
         this.eventEmitter.emit(parsedMsg.topic, content);
-        // } else {
-        //     this.eventEmitter.emit(parsedMsg.topic, parsedMsg.content);
-        // }
     }
 
     /**

@@ -22,7 +22,7 @@ class Heartbeat {
                 peer.alive = true;
                 peer.timestamp = message.timestamp;
                 peer.playerList = [];
-                //TODO peer has come back alive, so send states to this peer
+                //peer has come back alive, so send states to this peer
                 return peer;
             }
             peer.alive = true;
@@ -54,6 +54,7 @@ class Heartbeat {
         const peer = this.peerList.find((peer) => peer.address === spawnAction.address && peer.port === spawnAction.port);
         if (peer === undefined || peer.playerList.indexOf(spawnAction.identifier) !== -1) {
             //TODO Failed to find peer that send the message or ID already exists in player list
+            global.log.push('heartbeat', 'Failed to find peer that send message or ID already exists in player list');
         }
         peer.playerList.push(spawnAction.identifier);
     }

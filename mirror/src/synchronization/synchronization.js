@@ -107,7 +107,7 @@ class Synchronization {
      * @param trailingstates
      */
     recover(currentTime, trailingstates) {
-        const leadingState = this.getLeadingState();
+        const leadingState = this.states[0];
         const actionQueue = [...leadingState.executedActions.map((x) => x.action), ...leadingState.actions];
         // this.states = trailingstates;
 

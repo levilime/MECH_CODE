@@ -94,8 +94,10 @@ class TrailingState {
      * @param playerList
      */
     removePlayers(playerList) {
-      this.state.objects = this.state.objects.filter((o) => {
-          return playerList.indexOf(o.id) === -1;
+      Object.keys(this.state.objects).forEach((o) => {
+          if (playerList.indexOf(o) !== -1) {
+              delete this.state.objects[o];
+          }
       });
     }
 }

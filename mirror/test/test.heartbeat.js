@@ -39,4 +39,18 @@ describe('Heartbeat', function() {
             assert.equal(protocol.peerList[0].alive, false);
         });
     });
+
+    describe('Back Alive peer', function() {
+        it ('should peer become alive', function() {
+            const protocol = new heartbeat.Heartbeat(10);
+            protocol.peerList.push({address:'address', port:'port', timestamp: 1, alive:false, playerList: ['id']});
+            const message = {address:'address', port:'port', timestamp: 5};
+
+            assert.equal(protocol.peerList[0].alive, false);
+            assert.equal(protocol.peerList[0].playerList.length, 1);
+            protocol.update(6, message);
+            assert.equal(protocol.peerList[0].alive, true);
+            assert.equal(protocol.peerList[0].playerList.length, 0);
+        });
+    });
 });
