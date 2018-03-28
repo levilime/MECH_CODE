@@ -104,9 +104,9 @@ const monsterMove = (state, object, timestamp) =>  {
 };
 
 const playerAgentMove = (state, object, timestamp) => {
-    if(!state.objects[object.id]) {
-        return;
-    }
+    // if(!state.objects[object.id]) {
+    //     return;
+    // }
         const baseAction = {identifier: object.id, timestamp};
         // close to player who needs healing
         // directly taken from assignment, a player will be healed but not necessarily the one that has hp below 50%

@@ -37,9 +37,10 @@ module.exports =
                     // FIXME fix that right now the id is decided upon by the client
                     actionListener(action);
                 });
-                socket.on('disconnect', function(socket) {
+                socket.on('disconnect', function() {
                     global.log.push('client connection', 'client has disconnected');
-                })
+                    actionListener({type: "KILL", identifier: socket.id, data: {objectType: "player"}});
+                });
             });
 
             http.listen(port, function() {
