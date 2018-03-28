@@ -36,7 +36,7 @@ class ClientAgent {
 
         socket.on('disconnect', () =>
         {
-            console.log('disconnected', 'server has closed the connection with' + id);
+            console.log('disconnected', 'server has closed the connection with: ' + id);
             intervalId ? clearInterval(intervalId): undefined;
         });
 

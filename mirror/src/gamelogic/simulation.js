@@ -5,7 +5,7 @@ const monsterName = "monster";
 
 class Simulation {
 
-    constructor(monsterAmount, playerAgentAmount, synchronization, currentTime) {
+    constructor(monsterAmount, playerAgentAmount, synchronization, currentTime, annotation) {
         const self = this;
         this.synchronization = synchronization;
         const monsters = Array(monsterAmount).fill().map((x, i) => {
@@ -22,12 +22,12 @@ class Simulation {
 
         // initial spawning
         this.agents.forEach((agent) => {
-            self.spawn(agent.id, agent.type, currentTime);
+            self.spawn(agent.id, agent.type, currentTime, annotation);
         });
         return this;
     }
 
-    spawn(id, objectType, currentTime) {
+    spawn(id, objectType, currentTime, annotation) {
         const spawn = {
             type: "SPAWN",
             identifier: id,
@@ -35,13 +35,16 @@ class Simulation {
             timestamp: currentTime
         };
         global.log.push('simulation', 'spawn: ' + JSON.stringify(spawn));
-        this.synchronization.addAction(currentTime, spawn);
+        this.synchronization.addAction(currentTime, annotation(spawn));
     }
 
-    static updateAgent(state, agent, currentTime) {
+    static updateAgent(state, agent, currentTime, annotation) {
+        if(!annotation) {
+            annotation = (action) => action;
+        }
         const action = agentLibrary[agent.type];
         if (action) {
-            const agentAction = agentLibrary[agent.type](state, agent, currentTime);
+            const agentAction = annotation(agentLibrary[agent.type](state, agent, currentTime));
             global.log.push('simulation', 'agent: ' + agent.id + ' gets action: ' + JSON.stringify(agentAction));
             return agentAction;
         } else {
@@ -58,29 +61,29 @@ class Simulation {
         return !!this.synchronization.getLeadingState().objects[agent.id];
     }
 
-    updateAgents(currentTime) {
+    updateAgents(currentTime, annotation) {
         const self  = this;
         this.agents.forEach((agent) => {
-            const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
+            const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime, annotation);
             self.synchronization.addAction(currentTime, action);
         });
     }
 
-    updateAgentContiniously(agent, interval) {
-        const self = this;
-        const objects = this.synchronization.getLeadingState().objects;
-        if (!objects[agent.id]) {
-            global.log.push('simulation', 'destroyed agent' + JSON.stringify({[agent.id]: agent}));
-            return;
-        }
-        const currentTime = Date.now();
-        const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
-        self.synchronization.addAction(currentTime, action);
-        setTimeout( (agent, interval) => () => self.updateAgentContiniously(agent, interval), interval);
+    // updateAgentContiniously(agent, interval) {
+    //     const self = this;
+    //     const objects = this.synchronization.getLeadingState().objects;
+    //     if (!objects[agent.id]) {
+    //         global.log.push('simulation', 'destroyed agent' + JSON.stringify({[agent.id]: agent}));
+    //         return;
+    //     }
+    //     const currentTime = Date.now();
+    //     const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
+    //     self.synchronization.addAction(currentTime, action);
+    //     setTimeout( (agent, interval) => () => self.updateAgentContiniously(agent, interval), interval);
+    //
+    // }
 
-    }
-
-    updateAgentsContinuously(interval) {
+    updateAgentsContinuously(interval, annotation) {
         const self = this;
         // this.agents.forEach((agent) => {
         //     self.updateAgentContiniously(agent, interval);
@@ -89,7 +92,7 @@ class Simulation {
             // TODO kill agents that are dead
             // self.agents  = self.agents.filter(agent => self.synchronization.getLeadingState().objects[agent.id]);
             // TODO replace placeholder time by synchronized time
-            self.updateAgents(Date.now());
+            self.updateAgents(Date.now(), annotation);
         }, interval)
     }
 };
