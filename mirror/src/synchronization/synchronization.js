@@ -72,7 +72,7 @@ class Synchronization {
         for (let i = this.states.length - 1; i > 0; i--) {
             this.states[i].executedActions.forEach((executedAction) => {
                 const actionComparison = this.states[i - 1].executedActions.find((x) => {
-                    return x.action.identifier === executedAction.action.identifier && x.effect === executedAction.effect;
+                    return x.action.actionID === executedAction.action.actionID && x.effect === executedAction.effect;
                 });
                 if (actionComparison === undefined) {
                     //Inconsistency found, so rollback

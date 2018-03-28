@@ -5,7 +5,7 @@ const monsterName = "monster";
 
 class Simulation {
 
-    constructor(monsterAmount, playerAgentAmount, synchronization, currentTime) {
+    constructor(monsterAmount, playerAgentAmount, synchronization, currentTime, annotation) {
         const self = this;
         this.synchronization = synchronization;
         const monsters = Array(monsterAmount).fill().map((x, i) => {
@@ -22,12 +22,12 @@ class Simulation {
 
         // initial spawning
         this.agents.forEach((agent) => {
-            self.spawn(agent.id, agent.type, currentTime);
+            self.spawn(agent.id, agent.type, currentTime, annotation);
         });
         return this;
     }
 
-    spawn(id, objectType, currentTime) {
+    spawn(id, objectType, currentTime, annotation) {
         const spawn = {
             type: "SPAWN",
             identifier: id,
@@ -35,55 +35,39 @@ class Simulation {
             timestamp: currentTime
         };
         global.log.push('simulation', 'spawn: ' + JSON.stringify(spawn));
-        this.synchronization.addAction(currentTime, spawn);
+        this.synchronization.addAction(currentTime, annotation(spawn));
     }
 
-    updateAgent(agent, currentTime) {
-        const objects = this.synchronization.getLeadingState().objects;
-        if (!objects[agent.id]) {
-            global.log.push('simulation', 'nonexistent simulation agent not updated: ' + agent.id);
-            return;
+    static updateAgent(state, agent, currentTime, annotation) {
+        if(!annotation) {
+            annotation = (action) => action;
         }
         const action = agentLibrary[agent.type];
         if (action) {
-            const agentAction = agentLibrary[agent.type](this.synchronization.getLeadingState(), objects[agent.id], currentTime);
+            const agentAction = annotation(agentLibrary[agent.type](state, agent, currentTime));
             global.log.push('simulation', 'agent: ' + agent.id + ' gets action: ' + JSON.stringify(agentAction));
-            this.synchronization.addAction(currentTime, agentAction);
+            return agentAction;
         } else {
             global.log.push('simulation', 'no actions for agent type: ' + agent.type +
                 ' object: ' + JSON.stringify(agent));
         }
     }
 
-    updateAgents(currentTime) {
+    updateAgents(currentTime, annotation) {
         const self  = this;
         this.agents.forEach((agent) => {
-            self.updateAgent(agent, currentTime);
+            const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime, annotation);
+            self.synchronization.addAction(currentTime, action);
         });
     }
 
-    updateAgentContiniously(agent, interval) {
+    updateAgentsContinuously(interval, annotation) {
         const self = this;
-        const objects = this.synchronization.getLeadingState().objects;
-        if (!objects[agent.id]) {
-            global.log.push('simulation', 'destroyed agent' + JSON.stringify({[agent.id]: agent}));
-            return;
-        }
-        this.updateAgent(agent, Date.now());
-        setTimeout( (agent, interval) => () => self.updateAgentContiniously(agent, interval), interval);
-
-    }
-
-    updateAgentsContinuously(interval) {
-        const self = this;
-        // this.agents.forEach((agent) => {
-        //     self.updateAgentContiniously(agent, interval);
-        // });
         setInterval(() => {
             // TODO kill agents that are dead
             // self.agents  = self.agents.filter(agent => self.synchronization.getLeadingState().objects[agent.id]);
             // TODO replace placeholder time by synchronized time
-            self.updateAgents(Date.now());
+            self.updateAgents(Date.now(), annotation);
         }, interval)
     }
 };
@@ -98,9 +82,6 @@ const monsterMove = (state, object, timestamp) =>  {
 };
 
 const playerAgentMove = (state, object, timestamp) => {
-    if(!state.objects[object.id]) {
-        return;
-    }
         const baseAction = {identifier: object.id, timestamp};
         // close to player who needs healing
         // directly taken from assignment, a player will be healed but not necessarily the one that has hp below 50%

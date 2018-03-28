@@ -6,7 +6,7 @@ describe('Trailing State Logic', function() {
    describe('Add Action with Empty List', function() {
       it('should add to list', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
+            const action = {type: "SPAWN", actionID: '0', identifier: "player1", data: {objectType: "player"}, timestamp: 1};
             assert.equal(state.actions.length, 0);
             state.addAction(action);
             assert.equal(state.actions.length, 1);
@@ -17,8 +17,8 @@ describe('Trailing State Logic', function() {
     describe('Add Action to List with 1 element', function() {
         it('should add to head of list', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
-            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 0};
+            const action = {type: "SPAWN", actionID: "1",  identifier: "player1", data: {objectType: "player"}, timestamp: 1};
+            const action2 = {type: "SPAWN", actionID: "2", identifier: "player2", data: {objectType: "player"}, timestamp: 0};
             state.actions.push(action);
 
             assert.equal(state.actions.length, 1);
@@ -31,9 +31,9 @@ describe('Trailing State Logic', function() {
     describe('Add Action to List with 2 elements', function() {
         it('should add to middle of list', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 2};
-            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 0};
-            const action3 = {type: "SPAWN", identifier: "player3", data: {objectType: "player"}, timestamp: 1};
+            const action = {type: "SPAWN", actionID: 0, identifier: "player1", data: {objectType: "player"}, timestamp: 2};
+            const action2 = {type: "SPAWN", actionID: 1, identifier: "player2", data: {objectType: "player"}, timestamp: 0};
+            const action3 = {type: "SPAWN", actionID: 2, identifier: "player3", data: {objectType: "player"}, timestamp: 1};
             state.actions.unshift(action);
             state.actions.unshift(action2);
 
@@ -74,8 +74,8 @@ describe('Trailing State Logic', function() {
     describe('Execute on time Actions', function() {
         it('should execute only first action', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 2};
-            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 6};
+            const action = {type: "SPAWN", actionID: '0', identifier: "player1", data: {objectType: "player"}, timestamp: 2};
+            const action2 = {type: "SPAWN", actionID: '1', identifier: "player2", data: {objectType: "player"}, timestamp: 6};
             state.actions.push(action);
             state.actions.push(action2);
 
@@ -90,8 +90,8 @@ describe('Trailing State Logic', function() {
     describe('Remove list from ExecutedActions list', function() {
         it('should remove list from executedActions', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 2};
-            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 6};
+            const action = {type: "SPAWN", actionID: 0, identifier: "player1", data: {objectType: "player"}, timestamp: 2};
+            const action2 = {type: "SPAWN", actionID: 1, identifier: "player2", data: {objectType: "player"}, timestamp: 6};
             state.executedActions.push({action:action, effect:''});
             state.executedActions.push({action:action2, effect:''});
 
