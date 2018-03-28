@@ -30,9 +30,9 @@ class TrailingState {
             return;
         }
 
-        if (this.actions.find((a) => a.identifier === action.identifier) !== undefined) {
+        if (this.actions.find((a) => a.actionID === action.actionID) !== undefined) {
             //log that action with same identifier is already in the list
-            global.log.push('trailingState, delay: ' + this.delay, 'could not add action due to same id:' + action.identifier);
+            global.log.push('trailingState, delay: ' + this.delay, 'could not add action due to same id:' + action.actionID);
             return;
         }
 
@@ -75,8 +75,8 @@ class TrailingState {
      * @param executedActionsList
      */
     removeExecutedActions(executedActionsList) {
-        const idList = executedActionsList.map((a) => a.action.identifier);
-        this.executedActions = this.executedActions.filter((action) => idList.indexOf(action.action.identifier) === -1);
+        const idList = executedActionsList.map((a) => a.action.actionID);
+        this.executedActions = this.executedActions.filter((action) => idList.indexOf(action.action.actionID) === -1);
     }
 
     /**

@@ -81,6 +81,14 @@ const converters =
             const patient = board.findClosestObject(state, healer, (object) => object.type === healer.type);
             return patient && board.distanceBetweenObjects(healer, patient) <= healDistance
                 ? board.heal(state, healer, patient): state;
+        },
+        "KILL": (state, action) => {
+            const killed = state.objects[action.identifier];
+            if(!killed) {
+                global.log.push('action', 'action: ' + action.type + ' cannot be performed on nonexistent: ' + action.identifier);
+                return state;
+            }
+            return board.removeObject(state, killed);
         }
     };
 

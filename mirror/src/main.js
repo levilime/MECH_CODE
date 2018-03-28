@@ -3,6 +3,7 @@ const Logger = require('./log/logger').Logger;
 const Multicaster = require('./caster/multicaster').Multicaster;
 const Synchronization = require('./synchronization/synchronization').Synchronization;
 const {Simulation} = require('./gamelogic/simulation');
+const addActionInfo = require('./gamelogic/addactioninfo');
 
 const initialize = (state) =>  {
     const actionEvent = 'action';
@@ -10,7 +11,7 @@ const initialize = (state) =>  {
     const syncDelay = 50;
     const updateInterval = 100;
     const dragonAmount = 10;
-    const agentAmount = 20;
+    const agentAmount = 0;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -18,6 +19,8 @@ const initialize = (state) =>  {
     global.log = new Logger("log.txt", 1000);
 
     const multicaster = new Multicaster(state.multiport);
+    // const address = multicaster.sender.address().address + multicaster.sender.address().port;
+    const address = state.port;
     // initializes the trailing state manager
     const synchronization = new Synchronization(state.sizeX, state.sizeY, state.seed, numStates, syncDelay);
 
@@ -25,10 +28,12 @@ const initialize = (state) =>  {
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
         // TODO replace placeholder time by synchronized time
-        const timestampedAction = {...action, timestamp: Date.now()};
-        global.log.push('action', 'received action: ' + JSON.stringify(timestampedAction));
+        // FIXME fix that right now the id is decided upon by the client
+        const withActionIDandTimestamp = addActionInfo(Date.now(), action,
+            address);
+        global.log.push('action', 'received action: ' + JSON.stringify(withActionIDandTimestamp));
         // multicast functionality to feed the data to all mirror servers
-        multicaster.sendMessage(actionEvent, timestampedAction);
+        multicaster.sendMessage(actionEvent, withActionIDandTimestamp);
     });
 
     // logic of the mirror server receiving a multicast message and sending it
@@ -51,8 +56,15 @@ const initialize = (state) =>  {
     // create agents
     // TODO because simulation must also initialize after the game has started, it needs to take in
     // the state of the game and be able to continue it
-    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now());
-    simulation.updateAgentsContinuously(updateInterval);
+
+
+    const annotation = (action) => {
+        return addActionInfo(Date.now(), action,
+            address);
+    };
+
+    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now(), annotation);
+    simulation.updateAgentsContinuously(updateInterval, annotation);
 };
 
 initialize(require('../config'));
