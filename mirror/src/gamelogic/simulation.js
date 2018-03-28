@@ -53,14 +53,6 @@ class Simulation {
         }
     }
 
-    checkIfAgentExists() {
-    //     if (!objects[agent.id]) {
-    //     global.log.push('simulation', 'nonexistent simulation agent not updated: ' + agent.id);
-    //     return;
-    // }
-        return !!this.synchronization.getLeadingState().objects[agent.id];
-    }
-
     updateAgents(currentTime, annotation) {
         const self  = this;
         this.agents.forEach((agent) => {
@@ -69,25 +61,8 @@ class Simulation {
         });
     }
 
-    // updateAgentContiniously(agent, interval) {
-    //     const self = this;
-    //     const objects = this.synchronization.getLeadingState().objects;
-    //     if (!objects[agent.id]) {
-    //         global.log.push('simulation', 'destroyed agent' + JSON.stringify({[agent.id]: agent}));
-    //         return;
-    //     }
-    //     const currentTime = Date.now();
-    //     const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime);
-    //     self.synchronization.addAction(currentTime, action);
-    //     setTimeout( (agent, interval) => () => self.updateAgentContiniously(agent, interval), interval);
-    //
-    // }
-
     updateAgentsContinuously(interval, annotation) {
         const self = this;
-        // this.agents.forEach((agent) => {
-        //     self.updateAgentContiniously(agent, interval);
-        // });
         setInterval(() => {
             // TODO kill agents that are dead
             // self.agents  = self.agents.filter(agent => self.synchronization.getLeadingState().objects[agent.id]);
@@ -107,9 +82,6 @@ const monsterMove = (state, object, timestamp) =>  {
 };
 
 const playerAgentMove = (state, object, timestamp) => {
-    // if(!state.objects[object.id]) {
-    //     return;
-    // }
         const baseAction = {identifier: object.id, timestamp};
         // close to player who needs healing
         // directly taken from assignment, a player will be healed but not necessarily the one that has hp below 50%
