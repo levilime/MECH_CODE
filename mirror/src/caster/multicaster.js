@@ -1,5 +1,6 @@
 const dgram = require('dgram');
 const events = require('events');
+const time = require('../time/lamport');
 const BROADCAST_ADDRESS = '255.255.255.255';
 
 //TODO logging of actions
@@ -8,6 +9,7 @@ const BROADCAST_ADDRESS = '255.255.255.255';
 class Multicaster{
 
     constructor(port) {
+        time.resetClock();
         this.port = port;
         this.receiver = this.initReceiver();
         this.sender = this.initSender();
@@ -51,12 +53,9 @@ class Multicaster{
      */
     receiveMessage(msg, rinfo) {
         const parsedMsg = JSON.parse(msg.toString('utf8'));
-        if (parsedMsg.topic === 'HEARTBEAT') {
-            const content = {...parsedMsg.content, address: rinfo.address, port: rinfo.port};
-            this.eventEmitter.emit(parsedMsg.topic, content);
-        } else {
-            this.eventEmitter.emit(parsedMsg.topic, parsedMsg.content);
-        }
+        const content = {...parsedMsg.content, address: rinfo.address, port: rinfo.port,
+            timestamp: time.lamportClock(parsedMsg.timestamp)};
+        this.eventEmitter.emit(parsedMsg.topic, content);
     }
 
     /**
