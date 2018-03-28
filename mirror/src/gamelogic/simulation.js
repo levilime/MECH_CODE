@@ -55,21 +55,13 @@ class Simulation {
 
     updateAgents(currentTime, annotation) {
         const self  = this;
-        this.agents.forEach((agent) => {
+        return this.agents.map((agent) => {
             const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime, annotation);
             self.synchronization.addAction(currentTime, action);
+            return action;
         });
     }
 
-    updateAgentsContinuously(interval, annotation) {
-        const self = this;
-        setInterval(() => {
-            // TODO kill agents that are dead
-            // self.agents  = self.agents.filter(agent => self.synchronization.getLeadingState().objects[agent.id]);
-            // TODO replace placeholder time by synchronized time
-            self.updateAgents(Date.now(), annotation);
-        }, interval)
-    }
 };
 
 // TODO put this at one place

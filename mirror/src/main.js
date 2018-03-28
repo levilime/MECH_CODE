@@ -5,11 +5,13 @@ const Synchronization = require('./synchronization/synchronization').Synchroniza
 const {Simulation} = require('./gamelogic/simulation');
 const Heartbeat = require('./caster/heartbeat').Heartbeat;
 const addActionInfo = require('./gamelogic/addactioninfo');
+const addMonsterActionInfo = require('./gamelogic/addmonsteractioninfo');
 
 const initialize = (state) =>  {
     const actionEvent = 'action';
     const heartbeatEvent = 'HEARTBEAT';
     const recoveryEvent = 'RECOVERY';
+    const monsterActionEvent = 'monsteraction';
     const numStates = 5;
     const syncDelay = 50;
     const updateInterval = 100;
@@ -17,6 +19,8 @@ const initialize = (state) =>  {
     const heartbeatInterval = 2000;
     const max_peer_alive_time = 3000;
     const agentAmount = 0;
+
+    let recovering = false;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -40,15 +44,20 @@ const initialize = (state) =>  {
         }
         if (peer) {
             //Peer has come back alive
-            //TODO RNG send for recovery
             const trailingstates = synchronization.states.map((ts) => {
-                return {...ts, state:{board: ts.state.board, objects: state.state.objects}, seed: ts.state.seed.getSeed()};
+                return {...ts, address: peer.address, port: peer.port, state:{board: ts.state.board,
+                    objects: state.state.objects}, seed: ts.state.seed.getSeed()};
             });
             multicaster.sendMessage(recoveryEvent, synchronization);
         }
     });
     multicaster.getEventEmitter().on(recoveryEvent, (recovery) => {
-        synchronization.recover(Date.now(), recovery);
+        const address = multicaster.sender.address();
+        //Only recover if you are the intended target
+        if (recovery.address === address.address && recovery.port === address.port) {
+            synchronization.recover(Date.now(), recovery);
+            recovering = true;
+        }
     });
 
     // listen is called every time there is an action that needs to be broadcasted
@@ -73,6 +82,14 @@ const initialize = (state) =>  {
         synchronization.addAction(Date.now(), action);
     });
 
+    multicaster.getEventEmitter().on(monsterActionEvent, (monsterAction) => {
+       if (recovering) {
+           // TODO replace placeholder time by synchronized time
+           synchronization.addAction(Date.now(), monsterAction);
+
+       }
+    });
+
     const send = new ClientCommunicator(listen, state.port);
 
     setInterval(() => {
@@ -84,6 +101,7 @@ const initialize = (state) =>  {
     }, updateInterval);
 
     setInterval(() => {
+        recovering = false;
         multicaster.sendMessage(heartbeatEvent, {timestamp:Date.now()});
     }, heartbeatInterval);
 
@@ -91,14 +109,27 @@ const initialize = (state) =>  {
     // TODO because simulation must also initialize after the game has started, it needs to take in
     // the state of the game and be able to continue it
 
+    const monsterAnnotation = (action) => {
+        return addMonsterActionInfo(Date.now(), action);
+    };
 
     const annotation = (action) => {
         return addActionInfo(Date.now(), action,
             address);
     };
 
-    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now(), annotation);
-    simulation.updateAgentsContinuously(updateInterval, annotation);
+    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now(), monsterAnnotation);
+    setInterval(() => {
+        // TODO kill agents that are dead
+        // TODO replace placeholder time by synchronized time
+        const monsterActions = simulation.updateAgents(Date.now(), monsterAnnotation);
+        //Broadcast monster actions if there are recovering peers and this node is not recovering
+        if (heartbeat.getRecoveringPeers().length > 0 && !recovering) {
+            monsterActions.forEach((monsterAction) => {
+                multicaster.sendMessage(monsterActionEvent, monsterAction);
+            });
+        }
+    }, updateInterval);
 };
 
 initialize(require('../config'));

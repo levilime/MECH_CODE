@@ -16,17 +16,20 @@ class Heartbeat {
     update(currentTime, message) {
         const peer = this.peerList.find((peer) => peer.address === message.address && peer.port === message.port);
         if (peer === undefined) {
-            this.peerList.push({address: message.address, port: message.port, alive: true, timestamp: message.timestamp, playerList: []});
+            this.peerList.push({address: message.address, port: message.port, alive: true, isRecovering: false,
+                timestamp: message.timestamp, playerList: []});
         } else {
             if (!peer.alive) {
                 peer.alive = true;
                 peer.timestamp = message.timestamp;
                 peer.playerList = [];
+                peer.isRecovering = true;
                 //peer has come back alive, so send states to this peer
                 return peer;
             }
             peer.alive = true;
             peer.timestamp = message.timestamp;
+            peer.isRecovering = false;
         }
 
         //Check if still within alive period
@@ -44,6 +47,14 @@ class Heartbeat {
      */
     getDeadPeers() {
         return this.peerList.filter((peer) => !peer.alive);
+    }
+
+    /**
+     * Return the recovering peers
+     * @returns {Array.<*>}
+     */
+    getRecoveringPeers() {
+        return this.peerList.filter((peer)=> peer.isRecovering);
     }
 
     /**
