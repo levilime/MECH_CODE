@@ -48,11 +48,11 @@
     };
 
     const findObjectByPosition = (state, position) => {
-        const objects = !Object.keys(state.objects).filter(identifier =>
+        const ids = Object.keys(state.objects).filter(identifier =>
             state.objects[identifier].position.x === position.x &&
             state.objects[identifier].position.y === position.y
         );
-        return objects.length ? objects[0] : undefined;
+        return ids.length ? state.objects[ids[0]] : undefined;
     };
 
     const findClosestObject = (state, object, additionalCheck) => {
@@ -143,5 +143,5 @@
     };
 
  module.exports =  {placeObject, removeObject, moveObject,
-    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects, findObjectByPosition};
     

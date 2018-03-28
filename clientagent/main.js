@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 const simulation = require('../mirror/src/gamelogic/simulation');
 const updateInterval = 100;
-const amountOfAgents = 20;
+const amountOfAgents = 25;
 const minimumDeathCount = 100;
 
 global.log = {push: () => {}};
@@ -29,7 +29,7 @@ class ClientAgent {
                 amIDeath ++;
                 if(amIDeath >= minimumDeathCount){
                     console.log('disconnect', 'client: ' + socket.id + ' disconnects because it has died.');
-                    //socket.disconnect();
+                    socket.disconnect();
                 }
             } else {amIDeath = 0}
         });

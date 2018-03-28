@@ -49,6 +49,36 @@ describe('Converter logic', function() {
             const newState = converter(state, action, Math.random);
             assert.equal(newState.objects["player1"].position.x, 1);
         });
+        it('object cannot move beyond the edge', function() {
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects:  { player1: { id: 'player1', health: 11, ap: 9, position: {x: 0, y: 0} } },
+                seed: 6
+            };
+            seedrandom(state.seed, {global: true});
+            const action = {type: "MOVE", identifier: "player1", data: {objectType: "player", direction: "left"}};
+            const newState = converter(state, action, Math.random);
+            assert.equal(newState.objects["player1"].position.x, 0);
+        });
+        it('object cannot move where an other object resides', function() {
+            const player = { id: 'player', health: 11, ap: 9, position: {x: 0, y: 0} };
+            const player2 = { id: 'player2', health: 11, ap: 9, position: {x: 1, y: 0} };
+            const state = {
+                board : {
+                    sizeX: 2,
+                    sizeY: 1
+                },
+                objects:  {player, player2},
+                seed: 6
+            };
+            seedrandom(state.seed, {global: true});
+            const action = {type: "MOVE", identifier: "player1", data: {objectType: "player", direction: "right"}};
+            const newState = converter(state, action, Math.random);
+            assert.equal(newState.objects[player.id].position.x, 0);
+        });
     });
     describe('attack Object', function() {
         it('player should attack a monster', function() {
