@@ -100,6 +100,28 @@ class Synchronization {
         //Catching up with the actions
         this.states[rollbackStateIndex].executeActions(currentTime);
     };
+
+    /**
+     * Method to recover from restarting the node, when trailing states are received
+     * @param currentTime
+     * @param trailingstates
+     */
+    recover(currentTime, trailingstates) {
+        const leadingState = this.getLeadingState();
+        const actionQueue = [...leadingState.executedActions.map((x) => x.action), ...leadingState.actions];
+        // this.states = trailingstates;
+        this.states.forEach((state, index) => {
+            state.actions = trailingstates[index].actions;
+            state.executedActions = trailingstates[index].executedActions;
+            state.state = trailingstates[index].state;
+            state.delay = trailingstates[index].delay;
+
+            //Add actions that needed to wait
+            actionQueue.forEach((action) => {state.addAction(action);});
+            state.executeActions(currentTime);
+        });
+    }
+
 }
 
 module.exports = {Synchronization};

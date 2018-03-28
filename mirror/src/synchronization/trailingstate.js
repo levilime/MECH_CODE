@@ -30,7 +30,8 @@ class TrailingState {
             return;
         }
 
-        if (this.actions.find((a) => a.identifier === action.identifier) !== undefined) {
+        if (this.actions.find((a) => a.identifier === action.identifier) !== undefined ||
+            this.executedActions.find((a) => a.action.identifier === action.identifier) !== undefined) {
             //log that action with same identifier is already in the list
             global.log.push('trailingState, delay: ' + this.delay, 'could not add action due to same id:' + action.identifier);
             return;

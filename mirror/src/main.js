@@ -3,14 +3,19 @@ const Logger = require('./log/logger').Logger;
 const Multicaster = require('./caster/multicaster').Multicaster;
 const Synchronization = require('./synchronization/synchronization').Synchronization;
 const {Simulation} = require('./gamelogic/simulation');
+const Heartbeat = require('./caster/heartbeat').Heartbeat;
 
 const initialize = (state) =>  {
     const actionEvent = 'action';
+    const heartbeatEvent = 'HEARTBEAT';
+    const recoveryEvent = 'RECOVERY';
     const numStates = 5;
     const syncDelay = 50;
     const updateInterval = 100;
     const dragonAmount = 10;
     const agentAmount = 20;
+    const heartbeatInterval = 2000;
+    const max_peer_alive_time = 3000;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -47,6 +52,23 @@ const initialize = (state) =>  {
         // state is broadcasted to all clients
         send(synchronization.getLeadingState());
     }, updateInterval);
+
+    const heartbeat = new Heartbeat(max_peer_alive_time);
+    multicaster.getEventEmitter().on(heartbeatEvent, (heartbeat) => {
+       const peer = heartbeat.update(Date.now(), heartbeat);
+       if (peer) {
+           //Peer has come back alive
+           //TODO RNG send for recovery
+           multicaster.sendMessage(recoveryEvent, synchronization);
+       }
+    });
+    multicaster.getEventEmitter().on(recoveryEvent, (recovery) => {
+        synchronization.recover(Date.now(), recovery);
+    });
+
+    setInterval(() => {
+        multicaster.sendMessage(heartbeatEvent, {timestamp:Date.now()});
+    }, heartbeatInterval);
 
     // create agents
     // TODO because simulation must also initialize after the game has started, it needs to take in

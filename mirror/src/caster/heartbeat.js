@@ -19,7 +19,10 @@ class Heartbeat {
             this.peerList.push({address: message.address, port: message.port, alive: true, timestamp: message.timestamp});
         } else {
             if (!peer.alive) {
+                peer.alive = true;
+                peer.timestamp = message.timestamp;
                 //TODO peer has come back alive, so send states to this peer
+                return peer;
             }
             peer.alive = true;
             peer.timestamp = message.timestamp;
@@ -31,7 +34,7 @@ class Heartbeat {
                 peer.alive = false;
             }
         });
-
+        return undefined;
     }
 
     /**
