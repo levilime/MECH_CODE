@@ -88,14 +88,13 @@ describe('Trailing State Synchronization', function() {
     describe('Execute actions after Rollback', function() {
         it('should execute actions in all trailing states', function() {
             const synchronization = new sync.Synchronization(2,2,6,2,10);
-            const action = {type: "SPAWN", identifier: "player1", data: {objectType: "player"}, timestamp: 1};
+            const action = {type: "SPAWN", identifier: "player1", actionID: "0", data: {objectType: "player"}, timestamp: 1};
             synchronization.addAction(15, action);
             synchronization.execute(16);
             synchronization.states[0].state.objects['player1'].position = {x:-1, y:-1};
             synchronization.states[0].executedActions[0].effect = hash(synchronization.states[0].state);
             synchronization.execute(25);
-
-            const action2 = {type: "SPAWN", identifier: "player2", data: {objectType: "player"}, timestamp: 10};
+            const action2 = {type: "SPAWN", identifier: "player2", actionID: "1", data: {objectType: "player"}, timestamp: 10};
             synchronization.addAction(26, action2);
             assert.equal(synchronization.execute(27), true);
             assert.equal(Object.keys(synchronization.states[0].state.objects).length, 2);

@@ -48,11 +48,11 @@
     };
 
     const findObjectByPosition = (state, position) => {
-        const objects = !Object.keys(state.objects).filter(identifier =>
+        const ids = Object.keys(state.objects).filter(identifier =>
             state.objects[identifier].position.x === position.x &&
             state.objects[identifier].position.y === position.y
         );
-        return objects.length ? objects[0] : undefined;
+        return ids.length ? state.objects[ids[0]] : undefined;
     };
 
     const findClosestObject = (state, object, additionalCheck) => {
@@ -88,10 +88,10 @@
         const taken = Object.keys(state.objects).map(key => {
             const object = state.objects[key];
             const position = object.position;
-            return position.x * sizeX + position.y;
+            return position.y * sizeX + position.x;
         });
         // take a permitted random location
-        const aim = Math.ceil(rng() * (sizeX * sizeY - (taken.length + 1)));
+        const aim = Math.ceil(rng() * ((sizeX * sizeY - 1) - (taken.length)));
         // find all free spots
         const spots = Array(sizeX * sizeY).fill(0).map((x,i) => i).filter(value => !taken.includes(value));
         // take the one that was chosen by the rng
@@ -143,5 +143,5 @@
     };
 
  module.exports =  {placeObject, removeObject, moveObject,
-    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects};
+    findFreeSpot, findClosestObject, attack, heal, distanceBetweenObjects, findObjectByPosition};
     

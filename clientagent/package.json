@@ -4,8 +4,7 @@
   "description": "Mirror Server for Distributed Systems course\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[2~Traling state mirror server for the Distributed Systems course @ Tu Delft\u001b[D\u001b[D\u001b[D",
   "main": "main.js",
   "scripts": {
-    "test": "mocha",
-    "start": "node src/main.js"
+    "start": "node main.js"
   },
   "repository": {
     "type": "git",
@@ -22,13 +21,6 @@
   "homepage": "https://github.com/levilime/MECH_CODE#readme",
   "dependencies": {
     "express": "^4.16.3",
-    "object-hash": "^1.3.0",
-    "seed-random": "^2.2.0",
-    "seedrandom": "^2.4.3",
-    "socket.io": "^1.7.3",
-    "timemachine": "^0.3.0"
-  },
-  "devDependencies": {
-    "mocha": "^5.0.4"
+    "socket.io": "^1.7.3"
   }
 }

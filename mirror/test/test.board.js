@@ -19,6 +19,33 @@ describe('Board logic', function() {
             assert.equal(newState.objects["player1"].id, player.id);
         });
     });
+    describe('find object by position', function() {
+        it('should not find an object', function() {
+            const state = {
+                board : {
+                    sizeX: 1,
+                    sizeY: 1
+                },
+                objects: {},
+                seed: 6
+            };
+            const object = board.findObjectByPosition(state, {x: 0, y: 0});
+            assert.equal(object, undefined)
+        });
+        it('should find an object', function() {
+            const player = {id: "player", position: {x: 0, y: 0}};
+            const state = {
+                board : {
+                    sizeX: 1,
+                    sizeY: 1
+                },
+                objects: {player},
+                seed: 6
+            };
+            const object = board.findObjectByPosition(state, {x: 0, y: 0});
+            assert.deepEqual(object, player)
+        });
+    });
     describe('remove Object', function() {
         it('should remove an object', function() {
             const player = {id: "player1"};
