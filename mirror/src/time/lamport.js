@@ -1,7 +1,7 @@
 const timemachine = require('timemachine');
 
 const lamportClock = (timestamp) => {
-  if (timestamp > Date.now()) {
+  if (timestamp >= Date.now()) {
     timemachine.config({timestamp:timestamp+1, tick:true});
     return timestamp + 1;
   }
