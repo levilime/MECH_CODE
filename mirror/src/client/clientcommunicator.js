@@ -6,10 +6,12 @@ module.exports =
          * @param actionListener
          * @return {function(*=)}
          */
-        constructor (actionListener, port) {
+        constructor (actionListener, port, actionTimeoutInterval) {
             const app = require('express')();
             const http = require('http').Server(app);
             const io = require('socket.io')(http);
+
+            const timeoutSockets = {};
 
             const send = (state) => {
                 // broadcast state to all listening clients
@@ -33,9 +35,21 @@ module.exports =
                     // connect action with correct client
                     // create an action for consumption by the converter
 
-                    // TODO need to check here whether the player is on the board, otherwise cannot perform the action
-                    // FIXME fix that right now the id is decided upon by the client
-                    actionListener(action);
+                    // if the client is on a timeout because it did a previous action,
+                    // then don't allow his action
+                    if(timeoutSockets[socket.id]) {
+                        global.log.push('client connection', 'not processed too soon action of id:' +  socket.id);
+                        return;
+                    }
+
+                    // put as identifier the socket id, so player is identified by the
+                    // socket connection it has
+                    actionListener({...action, identifier: socket.id});
+                    timeoutSockets[socket.id] = true;
+                    setTimeout(() => {
+                        delete timeoutSockets[socket.id]
+                    }, actionTimeoutInterval);
+
                 });
                 socket.on('disconnect', function() {
                     global.log.push('client connection', 'client has disconnected');

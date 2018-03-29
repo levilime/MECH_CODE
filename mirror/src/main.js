@@ -12,6 +12,7 @@ const initialize = (state) =>  {
     const updateInterval = 100;
     const dragonAmount = 10;
     const agentAmount = 0;
+    const actionTimeoutInterval = 50;
 
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
@@ -43,7 +44,7 @@ const initialize = (state) =>  {
         synchronization.addAction(Date.now(), action);
     });
 
-    const send = new ClientCommunicator(listen, state.port);
+    const send = new ClientCommunicator(listen, state.port, actionTimeoutInterval);
 
     setInterval(() => {
         // TODO replace placeholder time by synchronized time
