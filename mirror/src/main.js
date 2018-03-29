@@ -10,6 +10,9 @@ const process = require('process');
 
 const initialize = (state) =>  {
     const clientport = process.argv[2];
+    if (clientport === undefined) {
+        process.exit(1);
+    }
     const actionEvent = 'action';
     const heartbeatEvent = 'HEARTBEAT';
     const recoveryEvent = 'RECOVERY';
@@ -29,7 +32,7 @@ const initialize = (state) =>  {
     // this import takes care of also initialzing the logger, so
     // this is put here as first task of the initialize for extra
     // clarity
-    global.log = new Logger("log.txt", 1000);
+    global.log = new Logger("log" + clientport + ".txt", 1000);
 
     const multicaster = new Multicaster(state.multiport);
     // const address = multicaster.sender.address().address + multicaster.sender.address().port;
