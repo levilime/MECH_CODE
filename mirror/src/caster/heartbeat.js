@@ -6,6 +6,7 @@ class Heartbeat {
     constructor(max_alive_time) {
         this.max_alive_time = max_alive_time; //Depends on frequency of heartbeat messages
         this.peerList = [];
+        this.intialPhase = 0;
     }
 
     /**
@@ -16,29 +17,40 @@ class Heartbeat {
     update(currentTime, message) {
         const peer = this.peerList.find((peer) => peer.address === message.address && peer.port === message.port);
         if (peer === undefined) {
-            this.peerList.push({address: message.address, port: message.port, alive: true, isRecovering: false,
-                timestamp: message.timestamp, playerList: []});
-        } else {
-            if (!peer.alive) {
-                peer.alive = true;
-                peer.timestamp = message.timestamp;
-                peer.playerList = [];
-                peer.isRecovering = true;
-                //peer has come back alive, so send states to this peer
-                return peer;
-            }
+            const newPeer = {
+                address: message.address, port: message.port, alive: true, isRecovering: this.intialPhase < 2,
+                timestamp: message.timestamp, playerList: []
+            };
+            this.peerList.push(newPeer);
+            this.checkAlive(currentTime);
+            return newPeer;
+        }
+        if (!peer.alive) {
             peer.alive = true;
             peer.timestamp = message.timestamp;
-            peer.isRecovering = false;
+            peer.playerList = [];
+            peer.isRecovering = true;
+            //peer has come back alive, so send states to this peer
+            return peer;
         }
+        peer.alive = true;
+        peer.timestamp = message.timestamp;
+        peer.isRecovering = false;
+        this.checkAlive(currentTime);
+        return peer;
+    }
 
+    /**
+     * Check for each peer in peer list if still alive
+     * @param currentTime
+     */
+    checkAlive(currentTime) {
         //Check if still within alive period
         this.peerList.forEach((peer) => {
-            if (Math.abs(currentTime - peer.timestamp) >  this.max_alive_time) {
+            if (Math.abs(currentTime - peer.timestamp) > this.max_alive_time) {
                 peer.alive = false;
             }
         });
-        return undefined;
     }
 
     /**
@@ -54,7 +66,7 @@ class Heartbeat {
      * @returns {Array.<*>}
      */
     getRecoveringPeers() {
-        return this.peerList.filter((peer)=> peer.isRecovering);
+        return this.peerList.filter((peer) => peer.isRecovering);
     }
 
     /**
@@ -76,7 +88,10 @@ class Heartbeat {
      * @returns {{timestamp: *}}
      */
     heartbeatMessage(currentTime) {
-        return {timestamp:currentTime};
+        if (this.intialPhase < 2) {
+            this.intialPhase++;
+        }
+        return {timestamp: currentTime};
     }
 
 }

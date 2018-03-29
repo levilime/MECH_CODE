@@ -40,9 +40,14 @@ const initialize = (state) =>  {
         const deadPeers = heartbeat.getDeadPeers();
         if (deadPeers.length > 0) {
             //Remove players from the states
-            deadPeers.forEach((deadPeer) => synchronization.removePlayers(deadPeer.playerList));
+            deadPeers.forEach((deadPeer) => {
+                if (deadPeer.playerList.length > 0) {
+                    synchronization.removePlayers(deadPeer.playerList);
+                    deadPeers.playerList = [];
+                }
+            });
         }
-        if (peer) {
+        if (peer.isRecovering) {
             //Peer has come back alive
             const trailingstates = synchronization.states.map((ts) => {
                 return {...ts, address: peer.address, port: peer.port, state:{board: ts.state.board,
@@ -102,7 +107,7 @@ const initialize = (state) =>  {
 
     setInterval(() => {
         recovering = false;
-        multicaster.sendMessage(heartbeatEvent, {timestamp:Date.now()});
+        multicaster.sendMessage(heartbeatEvent, heartbeat.heartbeatMessage(Date.now()));
     }, heartbeatInterval);
 
     // create agents
