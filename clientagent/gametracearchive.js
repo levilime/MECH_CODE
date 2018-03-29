@@ -1,6 +1,7 @@
 const linebyline = require('line-by-line');
 const ClientAgent = require('./clientagent');
-const address = 'http://localhost:3000';
+const BaseAddress = 'http://localhost:300';
+const knownAdresses = Array(1).fill(0).map((x,i) => BaseAddress + i);
 
 const WOWtext = 'WoWSession_Node_Player_Fixed_Dynamic';
 
@@ -18,7 +19,7 @@ let inQueue = 0;
 const startAgent =  () => {
     inQueue = Math.max(0, inQueue - 1);
     basicReader.resume();
-    new ClientAgent(address);
+    new ClientAgent(knownAdresses);
     console.log('player spawned');
 };
 
