@@ -30,7 +30,8 @@ class TrailingState {
             return;
         }
 
-        if (this.actions.find((a) => a.actionID === action.actionID) !== undefined) {
+        if (this.actions.find((a) => a.actionID === action.actionID) !== undefined ||
+            this.executedActions.find((a) => a.action.actionID === action.actionID) !== undefined) {
             //log that action with same identifier is already in the list
             global.log.push('trailingState, delay: ' + this.delay, 'could not add action due to same id:' + action.actionID);
             return;
@@ -86,6 +87,18 @@ class TrailingState {
     cloneState() {
         return {board:this.state.board, rng: this.state.rng, seed: this.state.seed,
             objects: JSON.parse(JSON.stringify(this.state.objects))};
+    }
+
+    /**
+     * Remove list of player ids
+     * @param playerList
+     */
+    removePlayers(playerList) {
+      Object.keys(this.state.objects).forEach((o) => {
+          if (playerList.indexOf(o) !== -1) {
+              delete this.state.objects[o];
+          }
+      });
     }
 }
 
