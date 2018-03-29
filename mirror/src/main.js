@@ -10,7 +10,7 @@ const initialize = (state) =>  {
     const numStates = 5;
     const syncDelay = 50;
     const updateInterval = 100;
-    const dragonAmount = 10;
+    const dragonAmount = 0;
     const agentAmount = 0;
 
     // this import takes care of also initialzing the logger, so
