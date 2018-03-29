@@ -3,12 +3,37 @@ const simulation = require('../mirror/src/gamelogic/simulation');
 
 const updateInterval = 100;
 const minimumDeathCount = 100;
-
 global.log = {push: () => {}};
+const request = require('request');
+
+const connections = '/connections';
 
 module.exports = class ClientAgent {
+    constructor(addresses) {
+        const connectionPromises = addresses.map(address => new Promise((res, rej) => {
+            request(address + connections, {json: true}, (err, result, body) => {
+                console.log(result);
+                console.log(body);
+                res(body);
+            })
+        }));
 
-    constructor(address) {
+        Promise.all(connectionPromises).then((results) => {
+            const lessloadedAddress = results.reduce((best, current) => {
+                if(!best) {
+                    return current;
+                }
+                else if(best.connections > current.connections) {
+                    return current;
+                } else {
+                    return best;
+                }
+            }, undefined).address;
+            runAgent(lessloadedAddress);
+        }).catch(e => console.log(e));
+    }
+
+    runAgent(address) {
         let currentState = undefined;
         let id = undefined;
         let intervalId = undefined;
