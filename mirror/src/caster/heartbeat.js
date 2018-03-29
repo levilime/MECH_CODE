@@ -86,6 +86,7 @@ class Heartbeat {
         if (peer === undefined || peer.playerList.indexOf(spawnAction.identifier) !== -1) {
             //TODO Failed to find peer that send the message or ID already exists in player list
             global.log.push('heartbeat', 'Failed to find peer that send message or ID already exists in player list' + JSON.stringify(spawnAction));
+            return;
         }
         peer.playerList.push(spawnAction.identifier);
     }
