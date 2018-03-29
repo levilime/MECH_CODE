@@ -17,10 +17,11 @@ const initialize = (state) =>  {
     const numStates = 5;
     const syncDelay = 50;
     const updateInterval = 100;
-    const dragonAmount = 10;
+    const dragonAmount = 20;
+    const agentAmount = 0;
+    const actionTimeoutInterval = 50;
     const heartbeatInterval = 2000;
     const max_peer_alive_time = 4000;
-    const agentAmount = 0;
     const anyIp = '0.0.0.0';
 
     let recovering = false;
@@ -102,7 +103,7 @@ const initialize = (state) =>  {
        }
     });
 
-    const send = new ClientCommunicator(listen, clientport);
+    const send = new ClientCommunicator(listen, clientport, actionTimeoutInterval);
 
     setInterval(() => {
         // TODO replace placeholder time by synchronized time
