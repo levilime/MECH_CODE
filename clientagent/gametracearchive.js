@@ -1,7 +1,7 @@
 const linebyline = require('line-by-line');
 const ClientAgent = require('./clientagent');
 const BaseAddress = 'http://localhost:300';
-const knownAdresses = Array(1).fill(0).map((x,i) => BaseAddress + i);
+const knownAdresses = Array(10).fill(10).map((x,i) => BaseAddress + i);
 
 const WOWtext = 'WoWSession_Node_Player_Fixed_Dynamic';
 

@@ -10,16 +10,15 @@ const connections = '/connections';
 
 module.exports = class ClientAgent {
     constructor(addresses) {
+        const self  = this;
         const connectionPromises = addresses.map(address => new Promise((res, rej) => {
             request(address + connections, {json: true}, (err, result, body) => {
-                console.log(result);
-                console.log(body);
-                res(body);
+                res({...body, address});
             })
         }));
 
         Promise.all(connectionPromises).then((results) => {
-            const lessloadedAddress = results.reduce((best, current) => {
+            const bestConnection = results.reduce((best, current) => {
                 if(!best) {
                     return current;
                 }
@@ -28,8 +27,13 @@ module.exports = class ClientAgent {
                 } else {
                     return best;
                 }
-            }, undefined).address;
-            runAgent(lessloadedAddress);
+            }, undefined);
+            if(bestConnection) {
+                const lessloadedAddress = bestConnection.address;
+                self.runAgent(lessloadedAddress);
+            } else {
+                console.log('there were no connections available');
+            }
         }).catch(e => console.log(e));
     }
 
