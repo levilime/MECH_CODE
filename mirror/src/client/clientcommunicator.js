@@ -22,6 +22,11 @@ module.exports =
                 res.sendFile(__dirname + '/index.html');
             });
 
+            app.get('/connections', function (req, res) {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({ address: port, connections: Object.keys(io.sockets.sockets).length }));
+            });
+
             io.on('connection', function(socket) {
                 global.log.push('client connection', 'new client with socket id: ' + socket.id + ' has connected');
                 // create action when client (dis)connects
