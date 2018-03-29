@@ -6,7 +6,7 @@
 <style>
     #battlefield {
         margin: auto;
-        width: 50%;
+        width: 100%;
         padding: 10px;
         list-style-type:none;
     }
@@ -15,12 +15,12 @@
 <script>
     let playerIdentifier = undefined;
     const redrawBattleFieldFromState = (state) => {
-        const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject("empty")));
+        const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject({type: "empty"})));
         Object.keys(state.objects).forEach(objectKey => {
             const object = state.objects[objectKey];
             battleField[object.position.y] = battleField[object.position.y].map((x,i) => {
                 if(i === object.position.x) {
-                    return drawObject(object.id === playerIdentifier ? "id": object.type);
+                    return drawObject(object.id === playerIdentifier ? {...object, type: "id"}: object);
                 } else {
                     return x;
                 }
@@ -29,23 +29,24 @@
         const battleFieldDom = document.getElementById("battlefield");
         battleFieldDom.innerHTML = "";
         battleField.forEach(yarray => {
-            const text = yarray.join(drawObject("space"));
+            const text = yarray.join(drawObject({type: "space"}));
             const li = document.createElement("LI");
             li.innerText = text;
             battleFieldDom.appendChild(li);
         })
     };
 
-    const drawObject = (type) => {
+    const drawObject = (object) => {
+        const statsRenderer = (object) => '(' + [object.health, object.ap].join(',') + ')';
         const drawLibrary = {
-            "empty": "*",
-            "id": "U", 
-            "player": "M",
-            "monster": "D",
-            "space": " "
+            "empty": () => "_____",
+            "id": (object) => "U" + statsRenderer(object),
+            "player": (object) => "M" + statsRenderer(object),
+            "monster": (object) => "D" + statsRenderer(object),
+            "space": () => " "
         };
-        if (drawLibrary[type]) {
-            return drawLibrary[type];
+        if (object && drawLibrary[object.type]) {
+            return drawLibrary[object.type](object);
         } else {
             return "?";
         }
