@@ -107,11 +107,11 @@ class Synchronization {
      * @param trailingstates
      */
     recover(currentTime, trailingstates) {
+        global.log.push('synchronization', 'recovering from given trailing states' + JSON.stringify(trailingstates));
         const leadingState = this.states[0];
         const actionQueue = [...leadingState.executedActions.map((x) => x.action), ...leadingState.actions];
-        // this.states = trailingstates;
 
-        this.states = trailingstates.map((ts, index) => {
+        this.states = trailingstates.states.map((ts, index) => {
             const newState = new t_states.TrailingState(ts.state.board.sizeX, ts.state.board.sizeY, ts.seed, ts.delay);
             newState.actions = ts.actions;
             newState.executedActions = ts.executedActions;

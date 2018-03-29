@@ -6,8 +6,10 @@ const {Simulation} = require('./gamelogic/simulation');
 const Heartbeat = require('./caster/heartbeat').Heartbeat;
 const addActionInfo = require('./gamelogic/addactioninfo');
 const addMonsterActionInfo = require('./gamelogic/addmonsteractioninfo');
+const process = require('process');
 
 const initialize = (state) =>  {
+    const clientport = process.argv[2];
     const actionEvent = 'action';
     const heartbeatEvent = 'HEARTBEAT';
     const recoveryEvent = 'RECOVERY';
@@ -17,8 +19,9 @@ const initialize = (state) =>  {
     const updateInterval = 100;
     const dragonAmount = 10;
     const heartbeatInterval = 2000;
-    const max_peer_alive_time = 3000;
+    const max_peer_alive_time = 4000;
     const agentAmount = 0;
+    const anyIp = '0.0.0.0';
 
     let recovering = false;
 
@@ -35,8 +38,9 @@ const initialize = (state) =>  {
 
     //Heartbeat protocol
     const heartbeat = new Heartbeat(max_peer_alive_time);
-    multicaster.getEventEmitter().on(heartbeatEvent, (heartbeat) => {
-        const peer = heartbeat.update(Date.now(), heartbeat);
+    multicaster.getEventEmitter().on(heartbeatEvent, (hbmsg) => {
+        const peerIsNewOrWasDead = heartbeat.checkNewOrDead(hbmsg);
+        const peer = heartbeat.update(Date.now(), hbmsg);
         const deadPeers = heartbeat.getDeadPeers();
         if (deadPeers.length > 0) {
             //Remove players from the states
@@ -47,19 +51,21 @@ const initialize = (state) =>  {
                 }
             });
         }
-        if (peer.isRecovering) {
+        if (peerIsNewOrWasDead && peer.isRecovering) {
             //Peer has come back alive
-            const trailingstates = synchronization.states.map((ts) => {
-                return {...ts, address: peer.address, port: peer.port, state:{board: ts.state.board,
-                    objects: state.state.objects}, seed: ts.state.seed.getSeed()};
+            const trailingstates =  synchronization.states.map((ts) => {
+                return {...ts, state:{board: ts.state.board, objects: ts.state.objects}, seed: ts.state.seed()};
             });
-            multicaster.sendMessage(recoveryEvent, synchronization);
+            const recoveryMessage = {states:trailingstates, recovery_address: peer.address, recovery_port: peer.port};
+
+            multicaster.sendMessage(recoveryEvent, recoveryMessage);
+            global.log.push('main', 'send recovery message to peer: ' + JSON.stringify(peer));
         }
     });
     multicaster.getEventEmitter().on(recoveryEvent, (recovery) => {
         const address = multicaster.sender.address();
         //Only recover if you are the intended target
-        if (recovery.address === address.address && recovery.port === address.port) {
+        if ((address.address === anyIp || recovery.recovery_address === address.address) && recovery.recovery_port === address.port) {
             synchronization.recover(Date.now(), recovery);
             recovering = true;
         }
@@ -91,11 +97,12 @@ const initialize = (state) =>  {
        if (recovering) {
            // TODO replace placeholder time by synchronized time
            synchronization.addAction(Date.now(), monsterAction);
+           global.log.push('main', 'recovering server uses broadcasted monster actions');
 
        }
     });
 
-    const send = new ClientCommunicator(listen, state.port);
+    const send = new ClientCommunicator(listen, clientport);
 
     setInterval(() => {
         // TODO replace placeholder time by synchronized time
@@ -106,7 +113,6 @@ const initialize = (state) =>  {
     }, updateInterval);
 
     setInterval(() => {
-        recovering = false;
         multicaster.sendMessage(heartbeatEvent, heartbeat.heartbeatMessage(Date.now()));
     }, heartbeatInterval);
 
@@ -127,13 +133,17 @@ const initialize = (state) =>  {
     setInterval(() => {
         // TODO kill agents that are dead
         // TODO replace placeholder time by synchronized time
-        const monsterActions = simulation.updateAgents(Date.now(), monsterAnnotation);
-        //Broadcast monster actions if there are recovering peers and this node is not recovering
-        if (heartbeat.getRecoveringPeers().length > 0 && !recovering) {
-            monsterActions.forEach((monsterAction) => {
-                multicaster.sendMessage(monsterActionEvent, monsterAction);
-            });
+        if (!recovering) {
+            const monsterActions = simulation.updateAgents(Date.now(), monsterAnnotation);
+            //Broadcast monster actions if there are recovering peers and this node is not recovering
+            if (heartbeat.getRecoveringPeers().length > 0) {
+                global.log.push('main', 'send monster actions for recovering node servers');
+                monsterActions.forEach((monsterAction) => {
+                    multicaster.sendMessage(monsterActionEvent, monsterAction);
+                });
+            }
         }
+
     }, updateInterval);
 };
 
