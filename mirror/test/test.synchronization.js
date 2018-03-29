@@ -128,15 +128,17 @@ describe('Trailing State Synchronization', function() {
             synchronization.addAction(18, action2);
             synchronization.execute(19);
 
-            const trailingstates = synchronization.states.map((ts) => {
+            const trailingstates =  synchronization.states.map((ts) => {
                 return {...ts, state:{board: ts.state.board, objects: ts.state.objects}, seed: ts.state.seed()};
             });
+            const recoveryMessage = {states:trailingstates};
+
             const restarted = new sync.Synchronization(2,2,6,2,10);
             const action3 = {type: "SPAWN", actionID: '2' ,identifier: "player3", data: {objectType: "player"}, timestamp: 1};
             synchronization.addAction(10, action3);
             synchronization.addAction(17, action2);
 
-            restarted.recover(19, trailingstates);
+            restarted.recover(19, recoveryMessage);
             assert.equal(Object.keys(restarted.states[0].state.objects).length, 2);
             assert.equal(restarted.states[0].actions.length, 1);
             assert.equal(restarted.states[0].executedActions.length, 2);
