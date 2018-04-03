@@ -7,6 +7,8 @@ const Heartbeat = require('./caster/heartbeat').Heartbeat;
 const addActionInfo = require('./gamelogic/addactioninfo');
 const addMonsterActionInfo = require('./gamelogic/addmonsteractioninfo');
 const process = require('process');
+const convert = require('./gamelogic/stateconverter');
+
 
 const initialize = (state) =>  {
     const clientport = process.argv[2];
@@ -17,9 +19,9 @@ const initialize = (state) =>  {
     const heartbeatEvent = 'HEARTBEAT';
     const recoveryEvent = 'RECOVERY';
     const monsterActionEvent = 'monsteraction';
-    const numStates = 5;
-    const syncDelay = 50;
-    const updateInterval = 100;
+    const numStates = 10;
+    const syncDelay = 100;
+    const updateInterval = 1000;
     const dragonAmount = 20;
     const agentAmount = 0;
     const actionTimeoutInterval = 50;
@@ -75,6 +77,15 @@ const initialize = (state) =>  {
         }
     });
 
+
+    // with this the code is not deterministic, spawning of the character is seperate from the trailing state flow.
+    const convertSpawnToPut = (action) => {
+        const id = action.identifier;
+        const state = synchronization.getLeadingState();
+        const newObject = convert(state, action, Math.random).objects[id];
+        return {...action, type: 'PUT', identifier: id, data:{object: newObject}}
+    };
+
     // listen is called every time there is an action that needs to be broadcasted
     const listen = ( (action) => {
         // action is one of the state converter compatible actions
@@ -83,14 +94,21 @@ const initialize = (state) =>  {
         const withActionIDandTimestamp = addActionInfo(Date.now(), action,
             address);
         global.log.push('action', 'received action: ' + JSON.stringify(withActionIDandTimestamp));
+        let sentAction;
+        if (action.type === 'SPAWN') {
+            sentAction = convertSpawnToPut(withActionIDandTimestamp);
+        } else {
+            sentAction = withActionIDandTimestamp;
+        }
         // multicast functionality to feed the data to all mirror servers
-        multicaster.sendMessage(actionEvent, withActionIDandTimestamp);
+        multicaster.sendMessage(actionEvent, sentAction);
     });
+
 
     // logic of the mirror server receiving a multicast message and sending it
     // to the trailing logic.
     multicaster.getEventEmitter().on(actionEvent, (action) => {
-        if (action.type === 'SPAWN') {
+        if (action.type === 'SPAWN' || action.type === 'PUT') {
             heartbeat.updatePlayerList(action);
         }
         // TODO replace placeholder time by synchronized time
@@ -126,11 +144,6 @@ const initialize = (state) =>  {
 
     const monsterAnnotation = (action) => {
         return addMonsterActionInfo(Date.now(), action);
-    };
-
-    const annotation = (action) => {
-        return addActionInfo(Date.now(), action,
-            address);
     };
 
     const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now(), monsterAnnotation);

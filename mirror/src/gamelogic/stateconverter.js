@@ -57,6 +57,11 @@ const converters =
                 return state;
             }
         },
+        "PUT": (state, action) => {
+            const newObject = action.data.object;
+            global.log.push('action', 'spawned:  ' + JSON.stringify(newObject) + 'by PUT action');
+            return {...state, objects: {...state.objects, [newObject.id]: newObject}};
+        },
         "SPAWN": (state, action, rng) => {
             const newObject = createObject(action.data.objectType, action.identifier, rng);
             global.log.push('action', 'spawned:  ' + JSON.stringify(newObject));

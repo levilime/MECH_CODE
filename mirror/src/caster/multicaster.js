@@ -53,8 +53,8 @@ class Multicaster{
      */
     receiveMessage(msg, rinfo) {
         const parsedMsg = JSON.parse(msg.toString('utf8'));
-        const content = {...parsedMsg.content, address: rinfo.address, port: rinfo.port,
-            timestamp: time.lamportClock(parsedMsg.timestamp)};
+        const content = {...parsedMsg.content, address: rinfo.address, port: rinfo.port}
+            //timestamp: time.lamportClock(parsedMsg.timestamp)};
         this.eventEmitter.emit(parsedMsg.topic, content);
     }
 

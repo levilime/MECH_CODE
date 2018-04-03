@@ -1,8 +1,8 @@
 const io = require('socket.io-client');
 const simulation = require('../mirror/src/gamelogic/simulation');
 
-const updateInterval = 100;
-const minimumDeathCount = 100;
+const updateInterval = 1000;
+const minimumDeathCount = 5;
 global.log = {push: () => {}};
 const request = require('request');
 
@@ -44,7 +44,7 @@ module.exports = class ClientAgent {
         let amIDeath = 0;
 
         const socket = io(address);
-        console.log('client started');
+        console.log('client started at:' + address);
 
         socket.on('id', (msg) => {
             console.log('listen', msg);
