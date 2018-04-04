@@ -16,7 +16,11 @@ let startTimeSystem = undefined;
 let firstTimeLog = undefined;
 let inQueue = 0;
 
+//Statistics for experiment
+let numConnects = 0;
+
 const startAgent =  () => {
+    numConnects++;
     inQueue = Math.max(0, inQueue - 1);
     basicReader.resume();
     new ClientAgent(knownAdresses);
@@ -28,6 +32,7 @@ basicReader.on('error', function (err) {
 });
 
 basicReader.on('end', function () {
+    console.log('num connections: ' + numConnects);
     console.log('All lines are read, file is closed now.');
 });
 
@@ -39,7 +44,7 @@ basicReader.on('line', (basicLine) => {
             return;
         }
         const splittedLine = basicLine.split(', ');
-        const timestamp = Number(splittedLine[2]);
+        const timestamp = Number(splittedLine[2]) / 100;
         const event = splittedLine[3];
 
         if(!firstTimeLog && event === playerSpawnEvent) {

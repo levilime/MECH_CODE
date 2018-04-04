@@ -29,6 +29,10 @@ const initialize = (state) => {
     const max_peer_alive_time = 4000;
     const anyIp = '0.0.0.0';
 
+    const startTime = Date.now();
+    let numPlayerMoves = 0;
+    let numMonsterMoves = 0;
+
     let recovering = false;
 
     // this import takes care of also initialzing the logger, so
@@ -46,6 +50,10 @@ const initialize = (state) => {
     const heartbeat = new Heartbeat(max_peer_alive_time);
 
     setInterval(() => {
+        global.log.push('statistics', 'Total Number of Rollbacks: ' + synchronization.numRollbacks + ', ' +
+            'total number of re-executed actions: ' + synchronization.numReexecutedActions + ', number of too late actions: '
+            + synchronization.numTooLateActions + ', total execution time: ' + (Date.now() - startTime).toString() +
+            ', Number of player actions: ' + numPlayerMoves + ', number of monster actions: ' + numMonsterMoves);
         const deadPeers = heartbeat.getDeadPeers();
         if (deadPeers.length > 0) {
             //Remove players from the states
@@ -116,6 +124,7 @@ const initialize = (state) => {
     // logic of the mirror server receiving a multicast message and sending it
     // to the trailing logic.
     multicaster.getEventEmitter().on(actionEvent, (actions) => {
+        numPlayerMoves += actions.actions.length;
         actions.actions.forEach((action) => {
             action.address = actions.address;
             action.port = actions.port;
@@ -163,6 +172,7 @@ const initialize = (state) => {
             //Broadcast monster actions if there are recovering peers and this node is not recovering
             if (heartbeat.getRecoveringPeers().length > 0) {
                 global.log.push('main', 'send monster actions for recovering node servers');
+                numMonsterMoves += monsterActions.length;
                 monsterActions.forEach((monsterAction) => {
                     multicaster.sendMessage(monsterActionEvent, monsterAction);
                 });

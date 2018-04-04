@@ -14,6 +14,9 @@ class Synchronization {
             states.push(new t_states.TrailingState(sizeX, sizeY, seed, i * syncDelay));
         }
         this.states = states;
+        this.numRollbacks = 0;
+        this.numTooLateActions = 0;
+        this.numReexecutedActions = 0;
     }
 
 
@@ -37,6 +40,7 @@ class Synchronization {
         //Check if Action falls within the window of the last trailing state
         if (currentTime - this.states[this.states.length - 1].delay > action.timestamp) {
             global.log.push('synchronization', 'action too late to be added:' + JSON.stringify(action));
+            this.numTooLateActions++;
             return;
         }
         this.states.forEach((state) => {
@@ -91,6 +95,8 @@ class Synchronization {
      * @param rollbackStateIndex
      */
     rollback(currentTime, copyStateIndex, rollbackStateIndex) {
+        this.numRollbacks++;
+        this.numReexecutedActions += this.states[copyStateIndex].actions.length - this.states[rollbackStateIndex].actions.length;
         global.log.push('synchronization', 'rollback occured between: ' + [rollbackStateIndex, copyStateIndex].join(', '));
         const copyState = this.states[copyStateIndex];
         this.states[rollbackStateIndex].actions = [...copyState.actions];
