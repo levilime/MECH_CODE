@@ -9,15 +9,17 @@ describe('Simulation logic', function() {
     describe('monster', function() {
         it('monster should attack whenever it can execute an action', function() {
             const monster = {id: "monster", type: "monster", position: {x: 0, y: 0}, health: 100, ap:20};
+            const player = {id: "player", type: "player", position: {x: 1, y: 0}, health: 100, ap:20};
             const state = {
                 board : {
-                    sizeX: 1,
-                    sizeY: 1
+                    sizeX: 2,
+                    sizeY: 2
                 },
-                objects: {monster},
+                objects: {monster,player},
                 seed: 6
             };
             const time = 150000;
+            console.log(agentLibrary[monster.type](state, monster, time));
             assert.deepEqual(agentLibrary[monster.type](state, monster, time),
                 {type: "ATTACK", identifier: monster.id, data: {}, timestamp: time});
         });

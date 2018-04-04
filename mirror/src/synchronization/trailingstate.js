@@ -46,7 +46,8 @@ class TrailingState {
             const currentSize = this.actions.length;
             for (let i = this.actions.length - 1; i >= 0; i--) {
                 //Insert sort action
-                if (this.actions[i].timestamp <= action.timestamp) {
+                if (this.actions[i].timestamp < action.timestamp || (this.actions[i].timestamp === action.timestamp
+                    && this.actions[i].actionID < action.actionID)) {
                     this.actions.splice(i + 1, 0, action);
                     break;
                 } else if (this.actions.length === currentSize && i === 0) {

@@ -44,6 +44,22 @@ describe('Trailing State Logic', function() {
         });
     });
 
+    describe('Add same timestamped Action to List with 2 elements', function() {
+        it('should add to middle of list', function() {
+            const state = new trailingstate.TrailingState(1,1,6,0);
+            const action = {type: "SPAWN", actionID: "0", identifier: "player1", data: {objectType: "player"}, timestamp: 2};
+            const action2 = {type: "SPAWN", actionID: "1", identifier: "player2", data: {objectType: "player"}, timestamp: 2};
+            const action3 = {type: "SPAWN", actionID: "2", identifier: "player3", data: {objectType: "player"}, timestamp: 1};
+            state.actions.push(action3);
+            state.actions.push(action2);
+
+            assert.equal(state.actions.length, 2);
+            state.addAction(action);
+            assert.equal(state.actions.length, 3);
+            assert.equal(state.actions[1].identifier, action.identifier);
+        });
+    });
+
     describe('Add duplicate Action to List', function() {
         it('should add to middle of list', function() {
             const state = new trailingstate.TrailingState(1,1,6,0);
