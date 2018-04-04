@@ -88,6 +88,7 @@ class Heartbeat {
             global.log.push('heartbeat', 'Failed to find peer that send message or ID already exists in player list' + JSON.stringify(spawnAction));
             return;
         }
+        global.log.push('heartbeat', 'Connected new player to playerlist of peer: ' + JSON.stringify(peer));
         peer.playerList.push(spawnAction.identifier);
     }
 
