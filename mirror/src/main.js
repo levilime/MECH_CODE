@@ -10,7 +10,7 @@ const process = require('process');
 const convert = require('./gamelogic/stateconverter');
 
 
-const initialize = (state) =>  {
+const initialize = (state) => {
     const clientport = process.argv[2];
     if (clientport === undefined) {
         process.exit(1);
@@ -36,7 +36,7 @@ const initialize = (state) =>  {
     // clarity
     global.log = new Logger("log" + clientport + ".txt", 1000);
 
-    const multicaster = new Multicaster(state.multiport);
+    const multicaster = new Multicaster(state.multiport, actionEvent, updateInterval);
     // const address = multicaster.sender.address().address + multicaster.sender.address().port;
     const address = state.port;
     // initializes the trailing state manager
@@ -59,10 +59,10 @@ const initialize = (state) =>  {
         }
         if (peerIsNewOrWasDead && peer.isRecovering) {
             //Peer has come back alive
-            const trailingstates =  synchronization.states.map((ts) => {
-                return {...ts, state:{board: ts.state.board, objects: ts.state.objects}, seed: ts.state.seed()};
+            const trailingstates = synchronization.states.map((ts) => {
+                return {...ts, state: {board: ts.state.board, objects: ts.state.objects}, seed: ts.state.seed()};
             });
-            const recoveryMessage = {states:trailingstates, recovery_address: peer.address, recovery_port: peer.port};
+            const recoveryMessage = {states: trailingstates, recovery_address: peer.address, recovery_port: peer.port};
 
             multicaster.sendMessage(recoveryEvent, recoveryMessage);
             global.log.push('main', 'send recovery message to peer: ' + JSON.stringify(peer));
@@ -83,7 +83,7 @@ const initialize = (state) =>  {
         const id = action.identifier;
         const state = synchronization.getLeadingState();
         const newObject = convert(state, action, Math.random).objects[id];
-        return {...action, type: 'PUT', identifier: id, data:{object: newObject}}
+        return {...action, type: 'PUT', identifier: id, data: {object: newObject}}
     };
 
     // listen is called every time there is an action that needs to be broadcasted
@@ -101,27 +101,30 @@ const initialize = (state) =>  {
             sentAction = withActionIDandTimestamp;
         }
         // multicast functionality to feed the data to all mirror servers
-        multicaster.sendMessage(actionEvent, sentAction);
+        multicaster.addToMessageQueue(sentAction);
+        // multicaster.sendMessage(actionEvent, sentAction);
     });
 
 
     // logic of the mirror server receiving a multicast message and sending it
     // to the trailing logic.
-    multicaster.getEventEmitter().on(actionEvent, (action) => {
-        if (action.type === 'SPAWN' || action.type === 'PUT') {
-            heartbeat.updatePlayerList(action);
-        }
-        // TODO replace placeholder time by synchronized time
-        synchronization.addAction(Date.now(), action);
+    multicaster.getEventEmitter().on(actionEvent, (actions) => {
+        actions.actions.forEach((action) => {
+            if (action.type === 'SPAWN' || action.type === 'PUT') {
+                heartbeat.updatePlayerList(action);
+            }
+            // TODO replace placeholder time by synchronized time
+            synchronization.addAction(Date.now(), action);
+        });
     });
 
     multicaster.getEventEmitter().on(monsterActionEvent, (monsterAction) => {
-       if (recovering) {
-           // TODO replace placeholder time by synchronized time
-           synchronization.addAction(Date.now(), monsterAction);
-           global.log.push('main', 'recovering server uses broadcasted monster actions');
+        if (recovering) {
+            // TODO replace placeholder time by synchronized time
+            synchronization.addAction(Date.now(), monsterAction);
+            global.log.push('main', 'recovering server uses broadcasted monster actions');
 
-       }
+        }
     });
 
     const send = new ClientCommunicator(listen, clientport, actionTimeoutInterval);

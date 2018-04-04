@@ -8,12 +8,28 @@ const BROADCAST_ADDRESS = '255.255.255.255';
 
 class Multicaster{
 
-    constructor(port) {
+    constructor(port, actionEvent, interval) {
         time.resetClock();
         this.port = port;
         this.receiver = this.initReceiver();
         this.sender = this.initSender();
         this.eventEmitter = new events.EventEmitter();
+        this.actionMessageQueue = [];
+        this.aggregateActionsInterval = this.sendAggregatedActions(actionEvent, interval);
+    }
+
+    /**
+     * Send the aggregated action messages per time interval
+     * @param actionEvent
+     * @param interval
+     */
+    sendAggregatedActions(actionEvent, interval) {
+        return setInterval(()=>{
+            if (this.actionMessageQueue.length > 0) {
+                this.sendMessage(actionEvent, {actions: this.actionMessageQueue});
+                this.actionMessageQueue = [];
+            }
+        }, interval);
     }
 
     /**
@@ -89,6 +105,10 @@ class Multicaster{
     sendMessage(topic, content) {
         const message = new Buffer(JSON.stringify({topic, content}));
         this.sender.send(message, 0, message.length, this.port, BROADCAST_ADDRESS);
+    }
+
+    addToMessageQueue(action) {
+        this.actionMessageQueue.push(action);
     }
 
     closeSockets() {
