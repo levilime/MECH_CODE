@@ -20,11 +20,14 @@ class Simulation {
 
         this.agents = [...monsters, ...players];
 
-        // initial spawning
-        this.agents.forEach((agent) => {
-            self.spawn(agent.id, agent.type, currentTime, annotation);
-        });
         return this;
+    }
+
+    spawnAgents(currentTime, annotation) {
+        return this.agents.map((agent) => {
+            // initial spawning
+            return this.spawn(agent.id, agent.type, currentTime, annotation);
+        });
     }
 
     spawn(id, objectType, currentTime, annotation) {
@@ -35,7 +38,8 @@ class Simulation {
             timestamp: currentTime
         };
         global.log.push('simulation', 'spawn: ' + JSON.stringify(spawn));
-        this.synchronization.addAction(currentTime, annotation(spawn));
+        return annotation(spawn);
+        // this.synchronization.addAction(currentTime, annotation(spawn));
     }
 
     static updateAgent(state, agent, currentTime, annotation) {

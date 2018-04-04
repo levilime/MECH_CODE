@@ -19,7 +19,7 @@ class Heartbeat {
         if (peer === undefined) {
             const newPeer = {
                 address: message.address, port: message.port, alive: true, isRecovering: this.intialPhase >= 2,
-                timestamp: message.timestamp, playerList: []
+                timestamp: message.timestamp, playerList: [], isLeader: message.isLeader ? message.isLeader : false
             };
             global.log.push('heartbeat', 'add new peer to the peerList: ' + JSON.stringify(newPeer));
             this.peerList.push(newPeer);
@@ -56,6 +56,7 @@ class Heartbeat {
         this.peerList.forEach((peer) => {
             if (Math.abs(currentTime - peer.timestamp) > this.max_alive_time && peer.alive) {
                 peer.alive = false;
+                peer.isLeader = false;
                 global.log.push('heartbeat', 'set peer to dead in the peerList: ' + JSON.stringify(peer));
             }
         });
@@ -103,6 +104,21 @@ class Heartbeat {
             this.intialPhase++;
         }
         return {timestamp: currentTime};
+    }
+
+    electLeader() {
+        let leader;
+        this.peerList.forEach((peer) => {
+           if (!leader || peer.port < leader.port || (peer.port === leader.port && peer.address < leader.address)) {
+               leader = peer;
+           }
+        });
+        leader.isLeader = true;
+        return leader;
+    }
+
+    getLeader() {
+        return this.peerList.find((peer) => peer.isLeader);
     }
 
 }
