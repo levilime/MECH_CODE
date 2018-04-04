@@ -84,7 +84,7 @@ const monsterMove = (state, object, timestamp) =>  {
     if (player &&  board.distanceBetweenObjects(player, monster) <= attackDistance) {
         return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
     } else {
-        global.log.push('simulation', 'monster: ' + monster.id + ' was not able to find anyone');
+        // global.log.push('simulation', 'monster: ' + monster.id + ' was not able to find anyone');
     }
 };
 
