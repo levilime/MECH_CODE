@@ -44,7 +44,11 @@ class Simulation {
         }
         const action = agentLibrary[agent.type];
         if (action) {
-            const agentAction = annotation(agentLibrary[agent.type](state, agent, currentTime));
+            const performedAction = agentLibrary[agent.type](state, agent, currentTime);
+            if(!performedAction) {
+                return undefined;
+            }
+            const agentAction = annotation(performedAction);
             global.log.push('simulation', 'agent: ' + agent.id + ' gets action: ' + JSON.stringify(agentAction));
             return agentAction;
         } else {
@@ -57,8 +61,10 @@ class Simulation {
         const self  = this;
         return this.agents.map((agent) => {
             const action = Simulation.updateAgent(this.synchronization.getLeadingState(), agent, currentTime, annotation);
-            self.synchronization.addAction(currentTime, action);
-            return action;
+            if (action) {
+                self.synchronization.addAction(currentTime, action);
+                return action;
+            }
         });
     }
 
@@ -70,7 +76,14 @@ const healDistance = 5;
 
 
 const monsterMove = (state, object, timestamp) =>  {
-    return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
+    const monster = state.objects[object.id];
+    if(!monster) {
+        return;
+    }
+    const player = board.findClosestObject(state, monster, (current) => current.type !== monster.type);
+    if (player &&  board.distanceBetweenObjects(player, monster) <= attackDistance) {
+        return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
+    }
 };
 
 const playerAgentMove = (state, object, timestamp) => {

@@ -2,7 +2,7 @@
 const stateconverter = require('../gamelogic/stateconverter');
 const hash = require('object-hash');
 const RNG = require('../gamelogic/rng');
-const MAX_MESSAGES = 100;
+const MAX_MESSAGES = 10000;
 
 class TrailingState {
 

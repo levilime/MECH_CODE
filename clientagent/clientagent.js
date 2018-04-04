@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 const simulation = require('../mirror/src/gamelogic/simulation');
 
-const updateInterval = 1000;
+const updateInterval = 100;
 const minimumDeathCount = 5;
 global.log = {push: () => {}};
 const request = require('request');
@@ -9,8 +9,10 @@ const request = require('request');
 const connections = '/connections';
 
 module.exports = class ClientAgent {
-    constructor(addresses) {
+    constructor(addresses, respawn) {
         const self  = this;
+        this.addresses = addresses;
+        this.respawn = respawn;
         const connectionPromises = addresses.map(address => new Promise((res, rej) => {
             request(address + connections, {json: true}, (err, result, body) => {
                 res({...body, address});
@@ -42,6 +44,7 @@ module.exports = class ClientAgent {
         let id = undefined;
         let intervalId = undefined;
         let amIDeath = 0;
+        let self = this;
 
         const socket = io(address);
         console.log('client started at:' + address);
@@ -59,6 +62,9 @@ module.exports = class ClientAgent {
                 if(amIDeath >= minimumDeathCount){
                     console.log('disconnect', 'client: ' + socket.id + ' disconnects because it has died.');
                     socket.disconnect();
+                    if(self.respawn) {
+                        new ClientAgent(self.addresses, self.respawn);
+                    }
                 }
             } else {amIDeath = 0}
         });

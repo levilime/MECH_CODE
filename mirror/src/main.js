@@ -21,7 +21,7 @@ const initialize = (state) =>  {
     const monsterActionEvent = 'monsteraction';
     const numStates = 10;
     const syncDelay = 100;
-    const updateInterval = 1000;
+    const updateInterval = 100;
     const dragonAmount = 20;
     const agentAmount = 0;
     const actionTimeoutInterval = 50;
