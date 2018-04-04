@@ -120,7 +120,7 @@ const initialize = (state) => {
             action.address = actions.address;
             action.port = actions.port;
             if (action.type === 'SPAWN' || action.type === 'PUT') {
-                heartbeat.updatePlayerList(action);
+                heartbeat.updatePlayerList(action, Date.now());
             }
             // TODO replace placeholder time by synchronized time
             synchronization.addAction(Date.now(), action);

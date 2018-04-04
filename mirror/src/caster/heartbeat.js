@@ -81,8 +81,8 @@ class Heartbeat {
      * Update player list of peer
      * @param spawnAction
      */
-    updatePlayerList(spawnAction) {
-        const peer = this.peerList.find((peer) => peer.address === spawnAction.address && peer.port === spawnAction.port);
+    updatePlayerList(spawnAction, currentTime) {
+        const peer = this.update(currentTime, spawnAction);
         if (peer === undefined || peer.playerList.indexOf(spawnAction.identifier) !== -1) {
             //TODO Failed to find peer that send the message or ID already exists in player list
             global.log.push('heartbeat', 'Failed to find peer that send message or ID already exists in player list' + JSON.stringify(spawnAction));
