@@ -19,9 +19,10 @@ const initialize = (state) => {
     const heartbeatEvent = 'HEARTBEAT';
     const recoveryEvent = 'RECOVERY';
     const monsterActionEvent = 'monsteraction';
-    const numStates = 10;
-    const syncDelay = 100;
+    const numStates = 5;
+    const syncDelay = 1000;
     const updateInterval = 100;
+    const agentUpdateInterval = 500;
     const dragonAmount = 20;
     const agentAmount = 0;
     const actionTimeoutInterval = 50;
@@ -31,7 +32,6 @@ const initialize = (state) => {
 
     const startTime = Date.now();
     let numPlayerMoves = 0;
-    let numMonsterMoves = 0;
 
     let recovering = false;
 
@@ -53,7 +53,7 @@ const initialize = (state) => {
         global.log.push('statistics', 'Total Number of Rollbacks: ' + synchronization.numRollbacks + ', ' +
             'total number of re-executed actions: ' + synchronization.numReexecutedActions + ', number of too late actions: '
             + synchronization.numTooLateActions + ', total execution time: ' + (Date.now() - startTime).toString() +
-            ', Number of player actions: ' + numPlayerMoves + ', number of monster actions: ' + numMonsterMoves);
+            ', Number of player actions: ' + numPlayerMoves);
         const deadPeers = heartbeat.getDeadPeers();
         if (deadPeers.length > 0) {
             //Remove players from the states
@@ -136,14 +136,14 @@ const initialize = (state) => {
         });
     });
 
-    multicaster.getEventEmitter().on(monsterActionEvent, (monsterAction) => {
-        if (recovering) {
-            // TODO replace placeholder time by synchronized time
-            synchronization.addAction(Date.now(), monsterAction);
-            global.log.push('main', 'recovering server uses broadcasted monster actions');
-
-        }
-    });
+    // multicaster.getEventEmitter().on(monsterActionEvent, (monsterAction) => {
+    //     if (recovering) {
+    //         // TODO replace placeholder time by synchronized time
+    //         synchronization.addAction(Date.now(), monsterAction);
+    //         global.log.push('main', 'recovering server uses broadcasted monster actions');
+    //
+    //     }
+    // });
 
     const send = new ClientCommunicator(listen, clientport, actionTimeoutInterval);
 
@@ -160,26 +160,28 @@ const initialize = (state) => {
     // the state of the game and be able to continue it
 
     const monsterAnnotation = (action) => {
-        return addMonsterActionInfo(Date.now(), action);
+        return addMonsterActionInfo(Date.now(), action, agentUpdateInterval);
     };
-
-    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, Date.now(), monsterAnnotation);
+    const time = Date.now();
+    const simulation = new Simulation(dragonAmount, agentAmount, synchronization, time - time % agentUpdateInterval, monsterAnnotation);
     setInterval(() => {
-        // TODO kill agents that are dead
-        // TODO replace placeholder time by synchronized time
-        if (!recovering) {
-            const monsterActions = simulation.updateAgents(Date.now(), monsterAnnotation);
-            //Broadcast monster actions if there are recovering peers and this node is not recovering
-            if (heartbeat.getRecoveringPeers().length > 0) {
-                global.log.push('main', 'send monster actions for recovering node servers');
-                numMonsterMoves += monsterActions.length;
-                monsterActions.forEach((monsterAction) => {
-                    multicaster.sendMessage(monsterActionEvent, monsterAction);
-                });
-            }
-        }
+        // // TODO kill agents that are dead
+        // // TODO replace placeholder time by synchronized time
+        // if (!recovering) {
 
-    }, updateInterval);
+
+            const time = Date.now();
+            simulation.updateAgents(time - time % agentUpdateInterval, monsterAnnotation);
+            //Broadcast monster actions if there are recovering peers and this node is not recovering
+            // if (heartbeat.getRecoveringPeers().length > 0) {
+            //     global.log.push('main', 'send monster actions for recovering node servers');
+            //     monsterActions.forEach((monsterAction) => {
+            //         multicaster.sendMessage(monsterActionEvent, monsterAction);
+            //     });
+            // }
+        //}
+
+    }, agentUpdateInterval);
 };
 
 initialize(require('../config'));

@@ -85,6 +85,7 @@ const monsterMove = (state, object, timestamp) =>  {
         return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
     } else {
         global.log.push('simulation', 'monster: ' + monster.id + ' was not able to find anyone');
+        return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
     }
 };
 
