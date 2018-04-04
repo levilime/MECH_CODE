@@ -11,6 +11,7 @@ describe('Multicaster', function() {
             const content = {test: 'TESTCONTENT'};
             eventemitter.on(topic, (x) => {
                 mcaster.closeSockets();
+                clearInterval(mcaster.aggregateActionsInterval);
                 assert.equal(x.test, content.test);
             });
             mcaster.sendMessage(topic, content);
@@ -22,6 +23,7 @@ describe('Multicaster', function() {
             const content = {test: 'TESTCONTENT'};
             eventemitter.on(topic, (x) => {
                 mcaster.closeSockets();
+                clearInterval(mcaster.aggregateActionsInterval);
                 assert.equal(x.test, content.test);
                 assert.notEqual(x.address, undefined);
                 assert.notEqual(x.port, undefined);

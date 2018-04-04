@@ -44,9 +44,8 @@ const initialize = (state) => {
 
     //Heartbeat protocol
     const heartbeat = new Heartbeat(max_peer_alive_time);
-    multicaster.getEventEmitter().on(heartbeatEvent, (hbmsg) => {
-        const peerIsNewOrWasDead = heartbeat.checkNewOrDead(hbmsg);
-        const peer = heartbeat.update(Date.now(), hbmsg);
+
+    setInterval(() => {
         const deadPeers = heartbeat.getDeadPeers();
         if (deadPeers.length > 0) {
             //Remove players from the states
@@ -57,6 +56,14 @@ const initialize = (state) => {
                 }
             });
         }
+
+        multicaster.sendMessage(heartbeatEvent, heartbeat.heartbeatMessage(Date.now()));
+    }, heartbeatInterval);
+
+    multicaster.getEventEmitter().on(heartbeatEvent, (hbmsg) => {
+        const peerIsNewOrWasDead = heartbeat.checkNewOrDead(hbmsg);
+        const peer = heartbeat.update(Date.now(), hbmsg);
+
         if (peerIsNewOrWasDead && peer.isRecovering) {
             //Peer has come back alive
             const trailingstates = synchronization.states.map((ts) => {
@@ -113,7 +120,7 @@ const initialize = (state) => {
             action.address = actions.address;
             action.port = actions.port;
             if (action.type === 'SPAWN' || action.type === 'PUT') {
-                heartbeat.updatePlayerList(action);
+                heartbeat.updatePlayerList(action, Date.now());
             }
             // TODO replace placeholder time by synchronized time
             synchronization.addAction(Date.now(), action);
@@ -138,10 +145,6 @@ const initialize = (state) => {
         // state is broadcasted to all clients
         send(synchronization.getLeadingState());
     }, updateInterval);
-
-    setInterval(() => {
-        multicaster.sendMessage(heartbeatEvent, heartbeat.heartbeatMessage(Date.now()));
-    }, heartbeatInterval);
 
     // create agents
     // TODO because simulation must also initialize after the game has started, it needs to take in

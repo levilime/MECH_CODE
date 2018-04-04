@@ -65,7 +65,7 @@ class Simulation {
                 self.synchronization.addAction(currentTime, action);
                 return action;
             }
-        });
+        }).filter((x) => x !== undefined);
     }
 
 };
