@@ -129,7 +129,7 @@
     const attack = (state, attacker, victim) => {
         const newHealth = victim.health - attacker.ap;
         const newVictim = {...victim, health: newHealth};
-        if(newHealth < 0) {
+        if(newHealth <= 0) {
             return removeObject(state, victim);
         }
         return {...state, objects: {...state.objects, [victim.id]: newVictim}};

@@ -83,6 +83,8 @@ const monsterMove = (state, object, timestamp) =>  {
     const player = board.findClosestObject(state, monster, (current) => current.type !== monster.type);
     if (player &&  board.distanceBetweenObjects(player, monster) <= attackDistance) {
         return {type: "ATTACK", identifier: object.id, data: {}, timestamp};
+    } else {
+        global.log.push('simulation', 'monster: ' + monster.id + ' was not able to find anyone');
     }
 };
 
