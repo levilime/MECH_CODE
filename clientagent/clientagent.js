@@ -1,8 +1,8 @@
 const io = require('socket.io-client');
 const simulation = require('../mirror/src/gamelogic/simulation');
 
-const updateInterval = 100;
-const minimumDeathCount = 5;
+const updateInterval = 500;
+const minimumDeathCount = 10;
 global.log = {push: () => {}};
 const request = require('request');
 

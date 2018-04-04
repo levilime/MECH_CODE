@@ -45,8 +45,10 @@ class Logger {
      */
     push(type, msg) {
         // FIXME get the time correctly
-        const time = new Date().toISOString();
-        const logEntry = {time,  type, msg};
+        const newTime = new Date();
+        const time = newTime.toISOString();
+        const utc = newTime.getTime();
+        const logEntry = {time, utc, type, msg};
         this.log.push(logEntry);
         console.log(logEntry);
     };
