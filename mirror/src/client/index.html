@@ -13,6 +13,8 @@
 </style>
 
 <script>
+    let lastStateArrival = undefined;
+
     let playerIdentifier = undefined;
     const redrawBattleFieldFromState = (state) => {
         const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject({type: "empty"})));
@@ -56,6 +58,9 @@
         const socket = io();
         // tells the player the current state
         socket.on('state', function(state){
+            const newDate = new Date();
+            console.log(newDate - lastStateArrival);
+            lastStateArrival = newDate;
             redrawBattleFieldFromState(state);
         });
         // tells the player his id

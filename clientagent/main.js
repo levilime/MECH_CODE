@@ -2,7 +2,7 @@ const ClientAgent = require('./clientagent');
 const BaseAddress = 'http://localhost:300';
 const knownAdresses = Array(5).fill(0).map((x,i) => BaseAddress + i);
 
-const amountOfAgents = 100;
+const amountOfAgents = 95;
 const waitUntillNextConnection = 100;
 
 const initialize = () =>  {
