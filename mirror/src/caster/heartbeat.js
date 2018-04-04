@@ -54,7 +54,7 @@ class Heartbeat {
     checkAlive(currentTime) {
         //Check if still within alive period
         this.peerList.forEach((peer) => {
-            if (Math.abs(currentTime - peer.timestamp) > this.max_alive_time) {
+            if (Math.abs(currentTime - peer.timestamp) > this.max_alive_time && peer.alive) {
                 peer.alive = false;
                 global.log.push('heartbeat', 'set peer to dead in the peerList: ' + JSON.stringify(peer));
             }

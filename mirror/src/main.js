@@ -53,7 +53,7 @@ const initialize = (state) => {
             deadPeers.forEach((deadPeer) => {
                 if (deadPeer.playerList.length > 0) {
                     synchronization.removePlayers(deadPeer.playerList);
-                    deadPeers.playerList = [];
+                    deadPeer.playerList = [];
                 }
             });
         }
@@ -110,6 +110,8 @@ const initialize = (state) => {
     // to the trailing logic.
     multicaster.getEventEmitter().on(actionEvent, (actions) => {
         actions.actions.forEach((action) => {
+            action.address = actions.address;
+            action.port = actions.port;
             if (action.type === 'SPAWN' || action.type === 'PUT') {
                 heartbeat.updatePlayerList(action);
             }
