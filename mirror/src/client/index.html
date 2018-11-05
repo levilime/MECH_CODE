@@ -13,19 +13,25 @@
 </style>
 
 <script>
+    // is set by scoket initialisation function
     let playerIdentifier = undefined;
+    let isAlive = true;
     const redrawBattleFieldFromState = (state) => {
+        let seenAlive = false;
         const battleField = new Array(state.board.sizeY).fill(Array(state.board.sizeX).fill(drawObject({type: "empty"})));
         Object.keys(state.objects).forEach(objectKey => {
             const object = state.objects[objectKey];
             battleField[object.position.y] = battleField[object.position.y].map((x,i) => {
                 if(i === object.position.x) {
+                    seenAlive = seenAlive || object.id === playerIdentifier;
                     return drawObject(object.id === playerIdentifier ? {...object, type: "id"}: object);
                 } else {
                     return x;
                 }
             });
         });
+        console.log(seenAlive);
+        changeStatus(seenAlive);
         const battleFieldDom = document.getElementById("battlefield");
         battleFieldDom.innerHTML = "";
         battleField.forEach(yarray => {
@@ -34,6 +40,17 @@
             li.innerText = text;
             battleFieldDom.appendChild(li);
         })
+    };
+
+    const changeStatus = (alive) => {
+        if(alive !== isAlive) {
+            isAlive = alive;
+            console.log(alive);
+            const statusBar = document.getElementById("status");
+            const statusText = isAlive ? "You are \"U\" Controls: WASD, Attack: Z, Heal: X": "You are dead, refresh to retry.";
+            console.log(statusText);
+            statusBar.innerText = "MECH_CODE: " +  statusText;
+        }
     };
 
     const drawObject = (object) => {
@@ -84,9 +101,9 @@
                 "z": {type: "ATTACK", data: {objectType: "player"}},
                 "x": {type: "HEAL", data: {objectType: "player"}},
             };
-
-            if (actionLibrary[keyName]) {
-                socket.emit('action', {...actionLibrary[keyName], identifier: playerIdentifier});
+            const lowerCaseKeyName = keyName.toLowerCase();
+            if (actionLibrary[lowerCaseKeyName]) {
+                socket.emit('action', {...actionLibrary[lowerCaseKeyName], identifier: playerIdentifier});
             } else {
                 alert('UNKNOWN KEY PRESS\n\n' + 'key: ' + keyName);
             }
@@ -97,6 +114,7 @@
 
 <body>
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<div id="status">MECH_CODE: You are "U" Controls: WASD, Attack: Z, Heal: X</div>
 <ul id="battlefield">
 </ul>
 </body>
