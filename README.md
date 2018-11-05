@@ -9,6 +9,9 @@ There are two applications. The `mirror server` that handles the logic of a mirr
 that can serve a webpage and a socket connection to play the game. The other application, `clientagent` is very small and
 is used to simulate a user. It connects to the `mirror` server with a websocket.
 
+The web client looks as follows:
+![](READMEIMGS/mechcode.gif)
+
 ## Get packages
 
 `cd mirror && npm install`
